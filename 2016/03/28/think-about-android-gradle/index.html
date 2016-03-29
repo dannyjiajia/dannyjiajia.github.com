@@ -64,7 +64,7 @@ http://ghui.me/post/2015/03/create-several-variants
 新的构建系统最主要的想法就是合并,将各自Productflavor定义的不同项目配置(applicationId,versionCode,signingCon">
 <meta property="og:type" content="article">
 <meta property="og:title" content="对Android的Gradle插件的理解">
-<meta property="og:url" content="https://dannyjiajia.github.io/2016/03/28/think-about-android-gradle/index.html">
+<meta property="og:url" content="http://dannyhe.wang/2016/03/28/think-about-android-gradle/index.html">
 <meta property="og:site_name" content="Notes">
 <meta property="og:description" content="本来打算写一篇关于Android的gradle插件的使用详解之类的文章,结果在知乎看到了一篇不错的。我在这里总结下吧。
 http://ghui.me/post/2015/03/create-several-variants
@@ -131,7 +131,7 @@ http://ghui.me/post/2015/03/create-several-variants
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
-  <p class="site-subtitle">Notes @ Github</p>
+  <p class="site-subtitle">dannyhe.wang</p>
 </div>
 
 <div class="site-nav-toggle">
@@ -327,7 +327,7 @@ http://ghui.me/post/2015/03/create-several-variants
 <h3 id="自己的方案"><a href="#自己的方案" class="headerlink" title="自己的方案"></a>自己的方案</h3><p>  我采用的是同一份java代码,同一个静态库,不同的资源目录,不同的<code>AndroidManifest.xml</code>文件.java代码通过<code>ant</code>插件的宏定义分别生成不同的java代码(只是在编译时).这样就达到了灵活打包的特点,根据不同的宏定义定制出不同的apk,代码始终维护一份<br><a id="more"></a></p>
 <h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><p>  使用ant的插件antenna:<a href="http://antenna.sourceforge.net/wtkpreprocess.php,下载后将jar包放在项目目录下的`tools`目录中,然后在`build.gradle`中配置" target="_blank" rel="external">http://antenna.sourceforge.net/wtkpreprocess.php,下载后将jar包放在项目目录下的`tools`目录中,然后在`build.gradle`中配置</a></p>
   <figure class="highlight qml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">def FreeMarcos = <span class="string">"FREE_VERSION"</span></span><br><span class="line">ant.properties[<span class="string">'wtk.home'</span>] = <span class="string">"tools"</span></span><br><span class="line">ant.taskdef( <span class="attribute">name</span>: <span class="string">"wtkpreprocess"</span>, <span class="attribute">classname</span>: <span class="string">"de.pleumann.antenna.WtkPreprocess"</span>, <span class="attribute">classpath</span>:<span class="string">"../tools/antenna-bin-1.0.2.jar"</span>)</span><br><span class="line">task <span class="decorator">PreprocessFree</span> &#123;</span><br><span class="line">  inputs.dir <span class="string">"src"</span></span><br><span class="line">  outputs.dir <span class="string">"src"</span></span><br><span class="line">  <span class="decorator">doLast</span> &#123;</span><br><span class="line">      ant.wtkpreprocess(</span><br><span class="line">          <span class="attribute">srcdir</span>: <span class="string">"src"</span>,</span><br><span class="line">          <span class="attribute">destdir</span>: <span class="string">"src"</span>, </span><br><span class="line">          <span class="attribute">verbose</span>:<span class="attribute">true,</span><br><span class="line">          printsymbols</span>:<span class="attribute">true,</span><br><span class="line">          debuglevel</span>:<span class="string">"debug"</span>,</span><br><span class="line">          <span class="attribute">encoding</span>:<span class="string">"UTF-8"</span>,</span><br><span class="line">          <span class="attribute">symbols</span>:<span class="attribute">FreeMarcos</span><br><span class="line">      )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>  也可以用ant的方式来配置,可以看这里:<a href="http://dannyjiajia.github.io/2016/01/31/use-ant-in-gradle">http://dannyjiajia.github.io/2016/01/31/use-ant-in-gradle</a></p>
+<p>  也可以用ant的方式来配置,可以看这里:<a href="http://dannyjiajia.github.io/2016/01/31/use-ant-in-gradle" target="_blank" rel="external">http://dannyjiajia.github.io/2016/01/31/use-ant-in-gradle</a></p>
 <h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><p>  比如在java代码里这样使用:</p>
   <figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">public</span> <span class="selector-tag">void</span> <span class="selector-tag">buy</span>()&#123;</span><br><span class="line">    <span class="selector-id">#ifdef</span> <span class="selector-tag">FREE_VERSION</span></span><br><span class="line">      <span class="selector-tag">pay</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="selector-id">#else</span> </span><br><span class="line">      <span class="selector-tag">pay</span>(<span class="number">100.0</span>);</span><br><span class="line">    <span class="selector-id">#endif</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>  执行gradle task:<code>gradle PreprocessFree</code>,然后重新打开上面的代码文件,就能看见源码的变化了:)</p>
@@ -389,7 +389,7 @@ http://ghui.me/post/2015/03/create-several-variants
         <div class="ds-share flat" data-thread-key="2016/03/28/think-about-android-gradle/"
      data-title="对Android的Gradle插件的理解"
      data-content=""
-     data-url="https://dannyjiajia.github.io/2016/03/28/think-about-android-gradle/">
+     data-url="http://dannyhe.wang/2016/03/28/think-about-android-gradle/">
   <div class="ds-share-inline">
     <ul  class="ds-share-icons-16">
 
@@ -417,7 +417,7 @@ http://ghui.me/post/2015/03/create-several-variants
   <div class="comments" id="comments">
     
       <div class="ds-thread" data-thread-key="2016/03/28/think-about-android-gradle/"
-           data-title="对Android的Gradle插件的理解" data-url="https://dannyjiajia.github.io/2016/03/28/think-about-android-gradle/">
+           data-title="对Android的Gradle插件的理解" data-url="http://dannyhe.wang/2016/03/28/think-about-android-gradle/">
       </div>
     
   </div>
