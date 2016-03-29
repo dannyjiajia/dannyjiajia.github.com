@@ -85,8 +85,10 @@ http://ghui.me/post/2015/03/create-several-variants
 
   执行gradle task:`gradle PreprocessFree`,然后重新打开上面的代码文件,就能看见源码的变化了:)
 
-#### 另外
-  将上面的`PreprocessFree`任务加到对应的`Productflavor`编译中,比如我定义的flavor为`free`
+#### 最后
+  将上面的`PreprocessFree`任务加到对应的`Productflavor`编译中,这样在我们每次执行`assemble`任务的时候,便会自动执行代码的生成任务。
+
+  比如我定义的flavor为`free`
 
   ~~~
   android.applicationVariants.all { variant ->
@@ -98,4 +100,5 @@ http://ghui.me/post/2015/03/create-several-variants
   }
   ~~~
 
-  enjoy coding:)
+  我们可以定义多个`flavor`和多个Preprocess任务,不同的`flavor`使用不同的java源码,这就实现了多个版本的需求，而且也不需要将源码分目录放了。
+  happy coding :)
