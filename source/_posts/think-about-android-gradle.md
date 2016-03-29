@@ -44,7 +44,7 @@ http://ghui.me/post/2015/03/create-several-variants
 <!-- more -->
 #### 配置
 
-  使用ant的插件antenna:http://antenna.sourceforge.net/wtkpreprocess.php,下载后将jar包放在项目目录下的`tools`目录中,然后在`build.gradle`中配置
+  使用ant的插件[antenna](http://antenna.sourceforge.net/wtkpreprocess.php),下载后将jar包放在项目目录下的`tools`目录中,然后在`build.gradle`中配置
 
   ~~~
   def FreeMarcos = "FREE_VERSION"
@@ -67,7 +67,7 @@ http://ghui.me/post/2015/03/create-several-variants
   }
   ~~~
 
-  也可以用ant的方式来配置,可以看这里:http://dannyjiajia.github.io/2016/01/31/use-ant-in-gradle
+  也可以用ant的方式来配置,可以看[这篇文章](http://dannyhe.wang/2016/01/31/use-ant-in-gradle)
 
 #### 使用
   
