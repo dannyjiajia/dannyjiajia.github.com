@@ -1,0 +1,10 @@
+!.gitignore
+.DS_Store
+db.json
+public/
+.DS_Store
+Thumbs.db
+db.json
+*.log
+node_modules/
+.deploy*/
