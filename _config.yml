@@ -67,12 +67,14 @@ sitemap:
     path: sitemap.xml
 theme: next
 avatar: https://avatars3.githubusercontent.com/u/2572540?v=3&s=460
-# Swiftype Search Key
-swiftype_key: JYVsgq8zxz6WBYjuWBzo
 links_title: 友情链接
 links:
   Jucongyuan: http://jucongyuan.github.io
   Leo: http://lj20082.github.io
+# Search(local)
+search:
+  path: search.xml
+  field: post
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
