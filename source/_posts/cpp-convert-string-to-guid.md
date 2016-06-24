@@ -11,7 +11,7 @@ using namespace Windows::ApplicationModel::Store;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 
-Platform::String^ transactionId = {xxxxx}; //从微软的内购中获取的订单号字符串
+Platform::String^ transactionId = "{xxxxx}"; //从微软的内购中获取的订单号字符串
 GUID guid;
 HRESULT hr = IIDFromString(transactionId->Data(), &guid);
 if (SUCCEEDED(hr)) {
