@@ -187,8 +187,7 @@ int main()
 
 - 系统通过RunLoop执行主队列中的任务,这个RunLoop由`UIApplicationMain`或者`NSApplicationMain`或者`CFRunLoopRun`创建
 - 两个不同的Timer,`NSTimer`依赖RunLoop来执行,GCD的Timer不需要RunLoop存在也能执行
-- 不要过度的加重RunLoop的负担,网上有个利用多个RunLoop的间隙来缓存Cell高度的工具,其实作者也已经取消掉了使用RunLoop来实现
 
 ### 最后
 
-我写的用例都是在Mac的命令行项目下测试的,感觉更能说明RunLoop的真实运行状态,比如测试`NSTimer`,如果不执行`CFRunLoopRun`,主线程是没有`RunLoop`的,`NSTimer`也会失效,而在`iOS`项目中,整个生命周期都是基于RunLoop的,`NSTimer`也不会出现无效的情况
+写的用例都是在Mac的命令行项目下测试的,感觉更能说明RunLoop的真实运行状态,比如测试`NSTimer`,如果不执行`CFRunLoopRun`,主线程是没有`RunLoop`的,`NSTimer`也会失效,而在`iOS`项目中,整个生命周期都是基于RunLoop的,`NSTimer`也不会出现无效的情况
