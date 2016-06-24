@@ -6,6 +6,7 @@ tags: [GCD,RunLoop]
 
 最近发现iOS中的RunLoop和GCD被讨论的挺多的,我也写点复习下:)
 
+### GCD
 ~~~
 #import <Foundation/Foundation.h>
 
@@ -125,3 +126,69 @@ int main()
     dispatch_main(); //执行提交到main queue中的blocks,在iOS和Mac的桌面应用你不需要调用
 }
 ~~~
+
+### RunLoop
+
+~~~
+#import <Foundation/Foundation.h>
+
+static void
+_perform(void *info __unused)
+{
+    printf("Source0 event\n");
+}
+
+static void
+_timer(CFRunLoopTimerRef timer __unused, void *info)
+{
+    NSLog(@"Timer fire Source0");
+    CFRunLoopSourceSignal(info);
+}
+
+int main()
+{
+
+    /** 注册observer **/
+    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
+    CFStringRef runLoopMode = kCFRunLoopDefaultMode;
+    CFRunLoopObserverRef observer = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, kCFRunLoopAllActivities, true, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity _) {
+        NSLog(@"observer event:%lu",_);
+    });
+    CFRunLoopAddObserver(runLoop, observer, runLoopMode);
+    
+    /** Source 0 **/
+    CFRunLoopSourceRef source;
+    CFRunLoopSourceContext source_context;
+    bzero(&source_context, sizeof(source_context));
+    source_context.perform = _perform;
+    source = CFRunLoopSourceCreate(NULL, 0, &source_context);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopDefaultMode);
+    
+    //2s后触发source0
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+        CFRunLoopSourceSignal(source);
+    });
+    
+    /** Timer **/
+
+    CFRunLoopTimerRef timer;
+    CFRunLoopTimerContext timer_context;
+    bzero(&timer_context, sizeof(timer_context));
+    timer_context.info = source;
+    timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent(), 5, 0, 0,
+                                 _timer, &timer_context);
+    CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer, kCFRunLoopDefaultMode);
+    CFRunLoopRun();
+    
+}
+~~~
+
+### 我的总结
+
+- 系统通过RunLoop执行主队列中的任务,这个RunLoop由`UIApplicationMain`或者`NSApplicationMain`或者`CFRunLoopRun`创建
+- 两个不同的Timer,`NSTimer`依赖RunLoop来执行,GCD的Timer不需要RunLoop存在也能执行
+- 不要过度的加重RunLoop的负担,网上有个利用多个RunLoop的间隙来缓存Cell高度的工具,其实作者也已经取消掉了使用RunLoop来实现
+
+### 最后
+
+我写的用例都是在Mac的命令行项目下测试的,感觉更能说明RunLoop的真实运行状态,比如测试`NSTimer`,如果不执行`CFRunLoopRun`,主线程是没有`RunLoop`的,`NSTimer`也会失效,而在`iOS`项目中,整个生命周期都是基于RunLoop的,`NSTimer`也不会出现无效的情况
