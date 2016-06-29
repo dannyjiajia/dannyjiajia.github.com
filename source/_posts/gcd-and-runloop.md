@@ -190,4 +190,6 @@ int main()
 
 ### 最后
 
-写的用例都是在Mac的命令行项目下测试的,感觉更能说明RunLoop的真实运行状态,比如测试`NSTimer`,如果不执行`CFRunLoopRun`,主线程是没有`RunLoop`的,`NSTimer`也会失效,而在`iOS`项目中,整个生命周期都是基于RunLoop的,`NSTimer`也不会出现无效的情况
+写的用例都是在Mac的命令行项目下测试的,感觉更能说明RunLoop的真实运行状态,比如测试`NSTimer`,
+如果不执行`CFRunLoopRun`,主线程是没有`RunLoop`的,`NSTimer`也会失效,而在`iOS`项目中,整个生命周期都是基于RunLoop,
+`NSTimer`也不会出现无效的情况(指定特殊`Mode`的任务除外)
