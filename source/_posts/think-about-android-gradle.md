@@ -75,11 +75,11 @@ http://ghui.me/post/2015/03/create-several-variants
 
   ~~~
   public void buy(){
-      #ifdef FREE_VERSION
+//#ifdef FREE_VERSION
         pay(0);
-      #else 
+//#else 
         pay(100.0);
-      #endif
+//#endif
   }
   ~~~
 
