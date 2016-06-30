@@ -1,7 +1,7 @@
 title: 如何在cmake里引用动态库的dll文件
 date: 2015-12-15 12:44:26
 tags: [Windows,cmake]
-categories: 技术博客
+categories: 
 updated: 2015-12-15 12:52:19
 ---
 

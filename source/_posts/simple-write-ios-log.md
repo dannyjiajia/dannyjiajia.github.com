@@ -1,7 +1,7 @@
 title: 最简单的方法将iOS中的NSLog写入文件
 date: 2016-01-31 17:05:29
 tags: [iOS]
-categories: 技术博客
+categories: 
 ---
 
 {% codeblock lang:objc %}

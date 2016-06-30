@@ -1,7 +1,7 @@
 title: 在gradle脚本使用ant插件Antenna实现java的源代码宏编译
 date: 2016-01-31 16:28:28
 tags: [Android,Android Studio,Gradle,Ant,Antenna]
-categories: 技术博客
+categories: 
 ---
 
 还没怎么研究过android studio,以前一直习惯用eclipse+ant+adt开发android.但是看到很多第三方sdk都是发布aar这种包,如FB。真心不想费神去自己把它构建成eclipse项目。于是开始学习android studio...

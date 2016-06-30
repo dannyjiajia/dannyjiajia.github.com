@@ -1,7 +1,7 @@
 title: 如何在window phone控制屏幕常亮
 date: 2016-01-31 16:54:42
 tags: [Windows Phone,Windows Mobile]
-categories: 技术博客
+categories: 
 ---
 
 在WindowPhone下禁用锁屏的事件

@@ -2,7 +2,7 @@
 title: 谈谈next主题如何添加"Fork me on Github"
 date: 2016-03-12 22:59:19
 tags: Next
-categories: 技术博客
+categories: 
 ---
 
 说说这个站点是如何添加"Fork me on Github",如果只是简单的添加只需要参考[github的文档](https://github.com/blog/273-github-ribbons),

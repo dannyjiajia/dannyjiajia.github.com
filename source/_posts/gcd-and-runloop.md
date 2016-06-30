@@ -1,7 +1,7 @@
 ---
 title: GCD与RunLoop
 date: 2016-06-24 10:33:15
-tags: [GCD,RunLoop]
+tags: [GCD,RunLoop,iOS]
 ---
 
 最近发现iOS中的RunLoop和GCD被讨论的挺多的,我也写点复习下:)

@@ -2,7 +2,7 @@
 title: 对Android的Gradle插件的理解
 date: 2016-03-28 19:26:48
 tags: [Android,Android Studio,Gradle,Ant,Antenna]
-categories: 技术博客
+categories: 
 ---
 
 本来打算写一篇关于Android的gradle插件的使用详解之类的文章,结果在知乎看到了一篇不错的。我在这里总结下吧。

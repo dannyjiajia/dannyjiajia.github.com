@@ -1,7 +1,7 @@
 title: Python打印的一个例子
 date: 2015-12-11 11:46:23
 tags: [Python,Platform,Cocos2dx]
-categories: 技术博客
+categories: 
 ---
 
 用python肯定是为了跨平台的便利,用python时在不同平台打印需要注意的地方。

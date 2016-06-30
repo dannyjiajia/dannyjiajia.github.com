@@ -1,7 +1,7 @@
 title: Visual Studio相关
 date: 2015-12-07 13:40:32
 tags: [Windows,Windows Mobile,Windows Phone]
-categories: 技术博客
+categories: 
 ---
 
 ## 安装部分
