@@ -126,7 +126,7 @@ int main()
     dispatch_main(); //执行提交到main queue中的blocks,在iOS和Mac的桌面应用你不需要调用
 }
 ~~~
-
+<!-- more -->
 ### RunLoop
 
 ~~~
