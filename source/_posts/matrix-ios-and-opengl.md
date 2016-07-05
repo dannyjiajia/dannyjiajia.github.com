@@ -24,14 +24,6 @@ $$\begin{bmatrix} x&y&1 \end{bmatrix} \cdot  \begin{bmatrix} a&b&0 \\\ c&d&0 \\\
 $$\begin{bmatrix} x&y&z&1 \end{bmatrix} \cdot \begin{bmatrix} m11&m12&m13&m14 \\\ m21&m22&m23&m24 \\\ m31&m32&m33&m34 \\\ m41&m42&m43&m44 \end{bmatrix} = \begin{bmatrix} x'&y'&z'&1 \end{bmatrix}$$
 
 
-> 为什么`m34`表示的透视投影的计算,并设置为$-\frac{1}{d}$?
-
-我的理解是在透视投影的时候`m34`表示的$1 \over e_z$
-
-参考[维基百科](https://en.wikipedia.org/wiki/3D_projection#Perspective_projection)
-注意链接中的推导是用的列向量表示,也就是需要对矩阵进行转置. `m34`表示的是维基公式中的$1 \over e_z$
-那么$e_z = -d$ 表示的是`物体在眼坐标系中的深度(z坐标)`
-
 #### opengl
 
 opengl使用列向量表示,所以是矩阵左乘向量.
