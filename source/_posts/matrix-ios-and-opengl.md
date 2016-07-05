@@ -23,7 +23,7 @@ $$\begin{bmatrix} x&y&1 \end{bmatrix} \cdot  \begin{bmatrix} a&b&0 \\\ c&d&0 \\\
 
 $$\begin{bmatrix} x&y&z&1 \end{bmatrix} \cdot \begin{bmatrix} m11&m12&m13&m14 \\\ m21&m22&m23&m24 \\\ m31&m32&m33&m34 \\\ m41&m42&m43&m44 \end{bmatrix} = \begin{bmatrix} x'&y'&z'&1 \end{bmatrix}$$
 
-
+`m34`可以影响投影矩阵设置为$-1 \over d$
 #### opengl
 
 opengl使用列向量表示,所以是矩阵左乘向量.
