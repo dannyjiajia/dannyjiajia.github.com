@@ -59,7 +59,7 @@ bool GLViewImpl::initWithRect(const std::string& viewName, Rect rect, float fram
 }
 ~~~
 
-更多信息可以参考[这篇文章](http://learnopengl-cn.readthedocs.io/zh/latest/04%20Advanced%20OpenGL/02%20Stencil%20testing/)
+更多信息可以参考[这篇文章](http://learnOpenGL-cn.readthedocs.io/zh/latest/04%20Advanced%20OpenGL/02%20Stencil%20testing/)
 
 #### 一般情况(不嵌套)
 
