@@ -1,7 +1,7 @@
 ---
-title: how to calculate total size of changed filess
+title: 如何计算git变动的文件大小
 date: 2016-05-12 16:35:26
-tags:
+tags: [git,shell]
 ---
 
 ~~~
