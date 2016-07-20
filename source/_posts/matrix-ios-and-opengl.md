@@ -12,6 +12,10 @@ iOS里面的矩阵用行向量表示,所以是矩阵右乘向量.
 
 以`Quartz 2D`举例平移,因为是2d所以是一个3x3的矩阵,3d就是4x4
 
+> 补充:有朋友问我这里为什么变成了3x3的矩阵?3d则是4x4?
+
+> 这里使用的齐次坐标。图形学引入齐次坐标的目的主要是合并矩阵运算中的乘法和加法，表示为p' = p*M的形式。即它提供了用矩阵运算把二维、三维甚至高维空间中的一个点集从一个坐标系变换到另一个坐标系的有效方法。
+
 $$\begin{bmatrix} x&y&1 \end{bmatrix} \cdot  \begin{bmatrix} a&b&0 \\\ c&d&0 \\\ t_x&t_y&1 \end{bmatrix} = \begin{bmatrix} ax+cy+t_x&bx+dy+t_y&1 \end{bmatrix}$$
 
 所以`CGAffineTransform CGAffineTransformMakeTranslation ( CGFloat tx, CGFloat ty );`是上面的公式中的
