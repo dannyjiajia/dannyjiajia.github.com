@@ -17,26 +17,26 @@ m_textBox->AcceptsReturn = true;
 
 ~~~
 void UITextViewWinRT::SetupTextBox()
-	{
-		RemoveTextBox();
-		m_textBox = ref new TextBox;
-		
-		m_textBox->Name = "cocos2d_editbox_textbox";
-		m_textBox->MinWidth = 200;
-		m_textBox->PlaceholderText = m_strPlaceholder;
-		m_textBox->Select(m_textBox->Text->Length(), 0);
-		m_textBox->MaxLength = m_maxLength < 0 ? 0 : m_maxLength;
-		m_textBox->MinHeight = 100;
-		m_textBox->MaxHeight = 200;
-		m_textBox->TextWrapping = Windows::UI::Xaml::TextWrapping::Wrap;
-		m_textBox->AcceptsReturn = true;
+{
+	RemoveTextBox();
+	m_textBox = ref new TextBox;
 	
-		SetInputScope(m_textBox, m_inputMode);
-		m_textBox->Text = m_strText; //注意这行
-		auto g = findXamlElement(m_flyout->Content, "cocos2d_editbox_grid");
-		auto grid = dynamic_cast<Grid^>(g);
-		grid->Children->InsertAt(0, m_textBox);
-	}
+	m_textBox->Name = "cocos2d_editbox_textbox";
+	m_textBox->MinWidth = 200;
+	m_textBox->PlaceholderText = m_strPlaceholder;
+	m_textBox->Select(m_textBox->Text->Length(), 0);
+	m_textBox->MaxLength = m_maxLength < 0 ? 0 : m_maxLength;
+	m_textBox->MinHeight = 100;
+	m_textBox->MaxHeight = 200;
+	m_textBox->TextWrapping = Windows::UI::Xaml::TextWrapping::Wrap;
+	m_textBox->AcceptsReturn = true;
+
+	SetInputScope(m_textBox, m_inputMode);
+	m_textBox->Text = m_strText; //注意这行
+	auto g = findXamlElement(m_flyout->Content, "cocos2d_editbox_grid");
+	auto grid = dynamic_cast<Grid^>(g);
+	grid->Children->InsertAt(0, m_textBox);
+}
 ~~~
 
 如果阅读过官方的`UIEditBoxImpl-winrt.cpp`加上细心的同学会注意`m_textBox->Text = m_strText; //注意这行`这行代码,以为我将其放到设置`TextBox`支持多行输出的代码后面了。
