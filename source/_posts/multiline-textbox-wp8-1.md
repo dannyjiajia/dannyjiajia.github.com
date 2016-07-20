@@ -39,7 +39,7 @@ void UITextViewWinRT::SetupTextBox()
 }
 ~~~
 
-如果阅读过官方的`UIEditBoxImpl-winrt.cpp`加上细心的同学会注意`m_textBox->Text = m_strText; //注意这行`这行代码,以为我将其放到设置`TextBox`支持多行输出的代码后面了。
+如果阅读过官方的`UIEditBoxImpl-winrt.cpp`加上细心的同学会注意`m_textBox->Text = m_strText; //注意这行`这行代码,因为我将这段代码放到设置`TextBox`支持多行输出的代码后面了。
 
 **如果不这样的的话,如果你给`TextBox`设置多行文本的时候是无效的**,猜想可能是系统在设置其文本属性的时候计算了文本的摆放的结构,当渲染的时候进行渲染.
 Windows Phone的换行符为`\r\n`不是一般的`\n`,这会引起新的问题,2dx里将`unicode`码转化成`UTF8`在`Label`里显示`\r`会被显示为乱码！
