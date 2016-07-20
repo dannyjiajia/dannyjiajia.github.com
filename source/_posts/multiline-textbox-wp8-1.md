@@ -4,7 +4,7 @@ date: 2016-07-20 14:57:34
 tags: [Cocos2dx,Windows Phone]
 ---
 
-最近在使用2dx的时候改造了一个[UIEditBox](https://github.com/cocos2d/cocos2d-x/blob/v3/cocos/ui/UIEditBox/UIEditBoxImpl-winrt.cpp),使其支持多行输入,因为在Windows Phone上单行和多行输入都是使用同一个系统控件`TextBox`,关于如何使用多行输入,可以参考微软的[文档](https://msdn.microsoft.com/en-us/library/ms742157(v=vs.110).aspx)
+最近在使用2dx的时候改造了一个[UIEditBox](https://github.com/cocos2d/cocos2d-x/blob/v3/cocos/ui/UIEditBox/UIEditBoxImpl-winrt.cpp),使其支持多行输入,因为在Windows Phone上单行和多行输入都是使用同一个系统控件`TextBox`,关于如何使用多行输入,可以参考微软的[文档](https://msdn.microsoft.com/en-us/library/ms742157.aspx)
 
 当然Cocos2dx在3.5以上的版本中已经是使用cpp(cx)的开发模板,大意的代码如下:
 
