@@ -185,6 +185,8 @@
 
     <div>
       {% if ! is_index %}
+        <center><a rel="license" href="http://creativecommons.org/licenses/by/2.5/cn/"><img alt="知识共享许可协议" style="border-width:0" src="http://localhost:4000/uploads/cc.png" /></a><br />{{ config.title }}采用<a rel="license" href="http://creativecommons.org/licenses/by/2.5/cn/">知识共享署名 2.5 中国大陆许可协议</a>.欢迎转载,但请注明文章来源.<br />
+        本文永久链接:<a rel="license" href="{{ url }}">{{ url }}</a></center>
         {% include 'reward.swig' %}
       {% endif %}
     </div>
