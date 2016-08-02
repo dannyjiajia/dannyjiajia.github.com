@@ -190,7 +190,7 @@ $$\begin{matrix} 0&0&0&0&0 \\\ 0&1&1&1&0 \\\ 2&3&3&3&2 \\\ 0&1&1&1&0 \\\ 0&0&0&0
 
 ### 最后
 
-~~猜测下iOS中的`UIScrollView`也是基于模板测试,当然有可能不嵌套的时候也是使用的`glScissor`,毕竟模板测试会多两次drawcall。~~
+*猜测*下iOS中的`UIScrollView`也是基于模板测试,当然有可能不嵌套的时候也是使用的`glScissor`,毕竟模板测试会多两次drawcall.
 最后如何改造`qucik`的`UIScrollView.lua`
 
 1. 继承`cc.ClippingNode`
