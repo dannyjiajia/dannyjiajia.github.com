@@ -14,7 +14,7 @@ tags: [iOS]
 * Off-Screen Rendering:意为离屏渲染，指的是GPU在当前屏幕缓冲区以外新开辟一个缓冲区进行渲染操作。
 
 上面的两种方式都是在GPU中执行的,离屏渲染会开辟一个缓冲区上下文进行渲染(这里不会在屏幕上显示),然后进行上下的切换.比如将之前开辟的缓冲区设置为当前屏幕的缓冲区(显示到屏幕),但这里开销比较大。
-而`Core Graphics`是`Software rendering`,也就是`CPU`执行`GPU`上一样的算法(`GPU`能更好的执行并发执行).
+而`Core Graphics`是`Software rendering`,也就是`CPU`执行`GPU`上一样的算法(`GPU`能更好的执行并发任务).
 参考:https://en.wikipedia.org/wiki/Software_rendering
 
 ## 为什么说离屏渲染并不意味着软件绘制?
