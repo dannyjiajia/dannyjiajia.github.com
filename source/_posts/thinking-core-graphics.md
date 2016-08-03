@@ -39,10 +39,6 @@ tags: [iOS]
 
 ## openGL ES的数据可以用Core Graphics绘制吗?
 
-可以.`QuartzCore`在实现中也用到两者的转换:
-`CALayer`会缓存一个`CABackingStore`,它里面有个`CGContextRef`的属性和要提供给openGL ES的纹理信息.
-这里的`CGContextRef`也就是函数`UIGraphicsGetCurrentContext()`的返回值。
-
 具体的转换方法参考这里:http://gamesfromwithin.com/remixing-opengl-and-uikit
 
 ## 如何理解贝塞尔曲线
