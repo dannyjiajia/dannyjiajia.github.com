@@ -23,7 +23,7 @@ tags: [iOS]
 这里面会使用`openGL ES`的缓冲区,它是在`GPU`里执行的。比如`CALayer`的`masking`就使用了片段着色器.
 ![CoreAnmation](http://cc.cocimg.com/api/uploads/20150428/1430209790572112.png)
 
-> 这里说明下CALayer的mask,它是根据设置的layer的aplha值进行过滤像素实现模板的(片段着色器),不是openGL ES中的模板测试实现的
+> 这里说明下CALayer的mask,它是根据设置的layer的alpha值进行过滤像素实现模板的(片段着色器),不是openGL ES中的模板测试实现的
 
 参考WWDC:https://developer.apple.com/videos/play/wwdc2014/419/
 
