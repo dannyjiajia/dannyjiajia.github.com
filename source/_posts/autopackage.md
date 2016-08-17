@@ -20,10 +20,16 @@ xcrun -sdk iphoneos PackageApplication -v "${ProductDir}/${TargetName}.app" -o "
 2. 在xcode 7以后这种打包方式不能通过苹果的审核.
 3. 如果需要其他证书的ipa的文件,又需要重新构建.
 <!-- more -->
+
 **所以最好的方式是完全模拟xcode的发布包流程:先archive备份,然后通过压缩包导出不同证书的ipa**
+
 如何实现呢? 只需要使用一个命令工具:`xcodebuild`.
 这里就只说明xcode 7以后的命令使用方式.
 首先我们`archive`项目:
+
+~~~
+xcodebuild -sdk iphoneos -configuration Release -scheme ${SchemeName} -target "${TargetName}" -archivePath ${ArchiveFileFullPath} GCC_PREPROCESSOR_DEFINITIONS="\${GCC_PREPROCESSOR_DEFINITIONS} FREEVERSION=0" WARNING_LDFLAGS="\${WARNING_LDFLAGS} -w" CODE_SIGN_IDENTITY="${DistributionCodeIdentity}" PROVISIONING_PROFILE="${DistributionProvision}" archive
+~~~
 
 * `SchemeName`为xcode中项目的`Scheme`
 * `TargetName`为项目的某个target名称
@@ -32,19 +38,16 @@ xcrun -sdk iphoneos PackageApplication -v "${ProductDir}/${TargetName}.app" -o "
 * `DistributionProvision`为profile的identifier,值形如`xxxx-xxxx-xxx-xxx-xx`(其实就是导入xcode后此profile的文件名)
 * `GCC_PREPROCESSOR_DEFINITIONS`和`WARNING_LDFLAGS`都是xcode的环境变量
 
-~~~
-xcodebuild -sdk iphoneos -configuration Release -scheme ${SchemeName} -target "${TargetName}" -archivePath ${ArchiveFileFullPath} GCC_PREPROCESSOR_DEFINITIONS="\${GCC_PREPROCESSOR_DEFINITIONS} FREEVERSION=0" WARNING_LDFLAGS="\${WARNING_LDFLAGS} -w" CODE_SIGN_IDENTITY="${DistributionCodeIdentity}" PROVISIONING_PROFILE="${DistributionProvision}" archive
-~~~
-
 生成成功`xcarchive`文件后我们就可以导出ipa文件了
+
+~~~
+xcodebuild -exportArchive -exportOptionsPlist ${ExportOptionsPlistPath} -archivePath ${ArchiveFileFullPath} -exportPath ${IpaFileDirectory}
+~~~
 
 * `ExportOptionsPlistPath` 指向一个plist文件的路径,这个plist为这次导出提供参数，这里提供的信息其实就是你在xcode中导出ipa的时候选择的那些选项.
 * `ArchiveFileFullPath` 是前面我们生成的`xcarchive` 文件路径
 * `IpaFileDirectory` 是最终导出的ipa的目录(*注意这里是目录而不是具体的ipa文件路径*)
 
-~~~
-xcodebuild -exportArchive -exportOptionsPlist ${ExportOptionsPlistPath} -archivePath ${ArchiveFileFullPath} -exportPath ${IpaFileDirectory}
-~~~
 
 `ExportOptionsPlistPath`plist文件的格式类似如下:
 
@@ -71,7 +74,7 @@ xcodebuild -exportArchive -exportOptionsPlist ${ExportOptionsPlistPath} -archive
 
 android上的打包就更复杂些.首先,如果有jni则需要先编译so文件并备份符号文件.然后是java的混淆日志文件等等.
 不过android上则按着平时打包的步骤写成脚本就好`ant`或者`gradle`任务.
-我推荐使用`gradle`插件进行开发,一是`Android Studio`结合和强大,二是`gradle`可以直接调用`ant`任务:)
+我推荐使用`gradle`插件进行开发,一是和`Android Studio`结合很强大,二是`gradle`可以直接调用`ant`任务:)
 
 # Windows Phone
 
