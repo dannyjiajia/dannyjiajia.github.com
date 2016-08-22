@@ -1,4 +1,4 @@
-title: lua简单递归字符串
+title: lua简单遍历字符串字符
 date: 2015-12-07 15:00:44
 tags: [lua]
 categories: 
