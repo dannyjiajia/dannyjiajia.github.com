@@ -15,6 +15,7 @@ install:
 script:
 - hexo clean
 - hexo generate
+- hexo algolia
 after_success:
 - hexo deploy
 env:
