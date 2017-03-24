@@ -94,7 +94,7 @@ font:
   global:
     # external: true will load this font family from host.
     external: true
-    family: Lato
+    family: Roboto
 
   # Font settings for Headlines (h1, h2, h3, h4, h5, h6)
   # Fallback to `global` font settings.
@@ -296,7 +296,7 @@ mathjax:
 #disqus_shortname:
 
 # Hypercomments
-#hypercomments_id:
+hypercomments_id: 88566
 
 # Gentie productKey
 #gentie_productKey:
@@ -313,7 +313,7 @@ changyan:
 
 # Support for LiveRe comments system.
 # You can get your uid from https://livere.com/insight/myCode (General web site)
-livere_uid: MTAyMC8yNzgzMS80NDA3
+# livere_uid: MTAyMC8yNzgzMS80NDA3
 
 # Baidu Share
 # Available value:
