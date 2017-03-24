@@ -1,0 +1,22 @@
+language: node_js
+branches:
+  only:
+  - blog
+before_install:
+- npm install -g hexo
+- npm install -g hexo-cli
+before_script:
+- git config --global user.name 'DannyHe'
+- git config --global user.email 'dannyjiajia@gmail.com'
+- sed -i'' "s~git@github.com:dannyjiajia/dannyjiajia.github.com.git~https://${REPO_TOKEN}:x-oauth-basic@github.com/dannyjiajia/dannyjiajia.github.com.git~"
+  _config.yml
+install:
+- npm install
+script:
+- hexo clean
+- hexo generate
+after_success:
+- hexo deploy
+env:
+  global:
+    secure: F/TxPQH6CsnTGxYJ+vqUevJx1GCdVkQGb0gkFKG7muAcPe0292AncRr7miDHMfnQM805Gruk6kHAip9ccn28QVIsedCzv2ASqNSvyfYBRrnpwWUNiyiuj0QeBog7C+nbedJgD+GPHWt08VBqABjmOnHSB2v7py4QYg/xQrRYwoDoH8JScyucFS0ioMpoFt4IamjF2vsmDikS7aaOQAyr8CAzFBrVcmGiW1D1xGZrfefJh9I+Ii6wv/ns2SrBxEW99b+yAjUsZYFNPARnFOKYhVwH0gH56esX8kxJo+W2Oa4ZrunZP4/Oj7kLxdv+f8Cy81uqj+sbe9UpUF3mMGv2EMEjhGd7+HECPKYZEhOgGONv//Fpgv+gz2HM/4yTuf9mA1B087HKSr3HlgFWWgYEiO2wQydb63B+qw19Z12mGYCAV6ARzzmNTt6H45xhEXOdC3xu5Z2trFPta+U3Y+uBn2DOpdrutHVcRVNkz6ZHeA7Gjv4qCbv8gucyBwbnoktP+VqaXRNG7ulPYNWvLNZhc21C5cM37htQLngFanllOXs6c6vhsZjpwvm4gYHW21r9MZxe5NW53y2qA7lUxqJiSDLduUeEyax0uFlBtdtt4JWR+e1C6NBPXShfV1FRJ7VMl3zBmSKVzFRytE6GDm9TDGucUpzYHjGbSljdis/7moM=
