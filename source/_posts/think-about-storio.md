@@ -4,7 +4,7 @@ date: 2017-03-31 09:46:40
 tags: [Android,RxJava]
 ---
 
-## storio?
+## storio
 
 `storio`是github上的[开源项目](https://github.com/pushtorefresh/storio),它用来操作`SQLiteDatabase`和 `ContentResolver`的操作进行封装,提供更简单更强大的api.我们项目最近从`xutils3`转换为`StorIOSQLite`,说说对它的体验和它是如何使用`RxJava`进行封装.
 
