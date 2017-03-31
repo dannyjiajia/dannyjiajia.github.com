@@ -1,0 +1,833 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Windows Phone,Cocos2dx," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近在使用2dx的时候改造了一个UIEditBox,使其支持多行输入,因为在Windows Phone上单行和多行输入都是使用同一个系统控件TextBox,关于如何使用多行输入,可以参考微软的文档
+当然Cocos2dx在3.5以上的版本中已经是使用cpp(cx)的开发模板,大意的代码如下:
+12m_textBox-&amp;gt;TextWrapping = Windows::UI::Xaml::Text">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WindowsPhone的TextBox多行支持及疑问">
+<meta property="og:url" content="http://dannyhe.wang/2016/07/20/multiline-textbox-wp8-1/index.html">
+<meta property="og:site_name" content="Notes">
+<meta property="og:description" content="最近在使用2dx的时候改造了一个UIEditBox,使其支持多行输入,因为在Windows Phone上单行和多行输入都是使用同一个系统控件TextBox,关于如何使用多行输入,可以参考微软的文档
+当然Cocos2dx在3.5以上的版本中已经是使用cpp(cx)的开发模板,大意的代码如下:
+12m_textBox-&amp;gt;TextWrapping = Windows::UI::Xaml::Text">
+<meta property="og:updated_time" content="2017-03-31T05:11:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WindowsPhone的TextBox多行支持及疑问">
+<meta name="twitter:description" content="最近在使用2dx的时候改造了一个UIEditBox,使其支持多行输入,因为在Windows Phone上单行和多行输入都是使用同一个系统控件TextBox,关于如何使用多行输入,可以参考微软的文档
+当然Cocos2dx在3.5以上的版本中已经是使用cpp(cx)的开发模板,大意的代码如下:
+12m_textBox-&amp;gt;TextWrapping = Windows::UI::Xaml::Text">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":true,"scrollpercent":true},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'I3ACRENDCJ',
+      apiKey: '686fd4a531304857781c8d66ff5b94d4',
+      indexName: 'notes',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://dannyhe.wang/2016/07/20/multiline-textbox-wp8-1/"/>
+
+
+
+
+
+  <title> WindowsPhone的TextBox多行支持及疑问 | Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">A place to record ideas</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://dannyhe.wang/2016/07/20/multiline-textbox-wp8-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DannyHe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                WindowsPhone的TextBox多行支持及疑问
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-07-20T14:57:34+00:00">
+                2016-07-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/07/20/multiline-textbox-wp8-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2016/07/20/multiline-textbox-wp8-1/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在使用2dx的时候改造了一个<a href="https://github.com/cocos2d/cocos2d-x/blob/v3/cocos/ui/UIEditBox/UIEditBoxImpl-winrt.cpp" target="_blank" rel="external">UIEditBox</a>,使其支持多行输入,因为在Windows Phone上单行和多行输入都是使用同一个系统控件<code>TextBox</code>,关于如何使用多行输入,可以参考微软的<a href="https://msdn.microsoft.com/en-us/library/ms742157.aspx" target="_blank" rel="external">文档</a></p>
+<p>当然Cocos2dx在3.5以上的版本中已经是使用cpp(cx)的开发模板,大意的代码如下:</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">m_textBox-&gt;TextWrapping = <span class="symbol">Windows:</span><span class="symbol">:UI</span><span class="symbol">:</span><span class="symbol">:Xaml</span><span class="symbol">:</span><span class="symbol">:TextWrapping</span><span class="symbol">:</span><span class="symbol">:Wrap</span>;</div><div class="line">m_textBox-&gt;AcceptsReturn = <span class="keyword">true</span>;</div></pre></td></tr></table></figure>
+<p>我们新加了一个类<code>UITextViewWinRT</code>提供系统的多行输入。</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">void UITextViewWinRT::SetupTextBox()</div><div class="line">&#123;</div><div class="line">	RemoveTextBox();</div><div class="line">	m_textBox = ref new TextBox;</div><div class="line">	</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>Name = <span class="string">"cocos2d_editbox_textbox"</span>;</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>MinWidth = <span class="number">200</span>;</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>PlaceholderText = m_strPlaceholder;</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>S<span class="function"><span class="title">elect</span>(m_textBox-&gt;</span>T<span class="function"><span class="title">ext</span>-&gt;</span>Length(), <span class="number">0</span>);</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>MaxLength = m_maxLength &lt; <span class="number">0</span> ? <span class="number">0</span> : m_maxLength;</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>MinHeight = <span class="number">100</span>;</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>MaxHeight = <span class="number">200</span>;</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>TextWrapping = Windows::UI::Xaml::TextWrapping::Wrap;</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>AcceptsReturn = <span class="literal">true</span>;</div><div class="line"></div><div class="line">	SetInputScope(m_textBox, m_inputMode);</div><div class="line">	<span class="function"><span class="title">m_textBox</span>-&gt;</span>Text = m_strText; <span class="comment">//注意这行</span></div><div class="line">	<span class="function"><span class="title">auto</span> g = findXamlElement(m_flyout-&gt;</span>Content, <span class="string">"cocos2d_editbox_grid"</span>);</div><div class="line">	auto grid = dynamic_cast&lt;Grid^&gt;(g);</div><div class="line">	<span class="function"><span class="title">grid</span>-&gt;</span>C<span class="function"><span class="title">hildren</span>-&gt;</span>InsertAt(<span class="number">0</span>, m_textBox);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果阅读过官方的<code>UIEditBoxImpl-winrt.cpp</code>加上细心的同学会注意<code>m_textBox-&gt;Text = m_strText; //注意这行</code>这行代码,因为我将这段代码放到设置<code>TextBox</code>支持多行输出的代码后面了。</p>
+<p><strong>如果不这样的的话,如果你给<code>TextBox</code>设置多行文本的时候是无效的</strong>,猜想可能是系统在设置其文本属性的时候计算了文本的摆放的结构,当渲染的时候进行渲染.<br>Windows Phone的换行符为<code>\r\n</code>不是一般的<code>\n</code>,这会引起新的问题,2dx里将<code>unicode</code>码转化成<code>UTF8</code>在<code>Label</code>里显示<code>\r</code>会被显示为乱码！<br><a id="more"></a><br>我的修改方案是</p>
+<ul>
+<li><p>Platform::String(unicode)转为std::string(UTF8)的时候移除<code>\r</code>,因为在2dx的<code>Label</code>里<code>\n</code>就是表示换行</p>
+</li>
+<li><p>std::string转为Platform::String的时候将<code>\n</code>替换为<code>\r\n</code>,让系统控件识别换行</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span>&amp;   <span class="title">replace_all_distinct</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">string</span>&amp;   str, <span class="keyword">const</span>   <span class="built_in">std</span>::<span class="built_in">string</span>&amp;   old_value, <span class="keyword">const</span>  <span class="built_in">std</span>::<span class="built_in">string</span>&amp;   new_value)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">for</span> (<span class="built_in">std</span>::<span class="built_in">string</span>::size_type pos(<span class="number">0</span>); pos != <span class="built_in">std</span>::<span class="built_in">string</span>::npos; pos += new_value.length())   &#123;</div><div class="line">		<span class="keyword">if</span> ((pos = str.find(old_value, pos)) != <span class="built_in">std</span>::<span class="built_in">string</span>::npos)</div><div class="line">			str.replace(pos, old_value.length(), new_value);</div><div class="line">		<span class="keyword">else</span>   <span class="keyword">break</span>;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span>   str;</div><div class="line">&#125;</div><div class="line"></div><div class="line">Platform::String^ UITextViewImplWinrt::stringToPlatformString(<span class="built_in">std</span>::<span class="built_in">string</span> strSrc)</div><div class="line">&#123;</div><div class="line">	<span class="built_in">std</span>::<span class="built_in">string</span> newSrc = replace_all_distinct(strSrc, <span class="string">"\n"</span>, <span class="string">"\r\n"</span>);</div><div class="line">	<span class="comment">// to wide char</span></div><div class="line">	<span class="keyword">int</span> nStrLen = MultiByteToWideChar(CP_UTF8, <span class="number">0</span>, newSrc.c_str(), <span class="number">-1</span>, <span class="literal">NULL</span>, <span class="number">0</span>);</div><div class="line">	<span class="keyword">wchar_t</span>* pWStr = <span class="keyword">new</span> <span class="keyword">wchar_t</span>[nStrLen + <span class="number">1</span>];</div><div class="line">	<span class="built_in">memset</span>(pWStr, <span class="number">0</span>, nStrLen + <span class="number">1</span>);</div><div class="line">	MultiByteToWideChar(CP_UTF8, <span class="number">0</span>, newSrc.c_str(), <span class="number">-1</span>, pWStr, nStrLen);</div><div class="line">	Platform::String^ strDst = ref <span class="keyword">new</span> Platform::String(pWStr);</div><div class="line">	<span class="keyword">delete</span>[] pWStr;</div><div class="line">	<span class="keyword">return</span> strDst;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">std</span>::<span class="built_in">string</span> UITextViewImplWinrt::PlatformStringTostring(Platform::String^ strSrc)</div><div class="line">&#123;</div><div class="line">	<span class="keyword">const</span> <span class="keyword">wchar_t</span>* pWStr = strSrc-&gt;Data();</div><div class="line">	<span class="keyword">int</span> nStrLen = WideCharToMultiByte(CP_UTF8, <span class="number">0</span>, pWStr, <span class="number">-1</span>, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">	<span class="keyword">char</span>* pStr = <span class="keyword">new</span> <span class="keyword">char</span>[nStrLen + <span class="number">1</span>];</div><div class="line">	<span class="built_in">memset</span>(pStr, <span class="number">0</span>, nStrLen + <span class="number">1</span>);</div><div class="line">	WideCharToMultiByte(CP_UTF8, <span class="number">0</span>, pWStr, <span class="number">-1</span>, pStr, nStrLen, <span class="literal">NULL</span>, <span class="literal">NULL</span>);;</div><div class="line"></div><div class="line">	<span class="built_in">std</span>::<span class="built_in">string</span> strDst = <span class="built_in">std</span>::<span class="built_in">string</span>(pStr);</div><div class="line"></div><div class="line">	<span class="keyword">delete</span>[] pStr;</div><div class="line">	<span class="built_in">std</span>::<span class="built_in">string</span> ret = replace_all_distinct(strDst, <span class="string">"\r\n"</span>, <span class="string">"\n"</span>);</div><div class="line">	<span class="keyword">return</span> ret;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      DannyHe
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://dannyhe.wang/2016/07/20/multiline-textbox-wp8-1/" title="WindowsPhone的TextBox多行支持及疑问">http://dannyhe.wang/2016/07/20/multiline-textbox-wp8-1/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by/2.5/cn/" rel="external nofollow" target="_blank">CC BY 2.5 CN</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Windows-Phone/" rel="tag"># Windows Phone</a>
+          
+            <a href="/tags/Cocos2dx/" rel="tag"># Cocos2dx</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/15/etc1-alpha-on-android-cocos2dx/" rel="next" title="Cocos2dx在Android上使用ETC1+Alpha压缩纹理">
+                <i class="fa fa-chevron-left"></i> Cocos2dx在Android上使用ETC1+Alpha压缩纹理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/07/22/findWay/" rel="prev" title="用Lua实现A*寻路算法">
+                用Lua实现A*寻路算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460"
+               alt="DannyHe" />
+          <p class="site-author-name" itemprop="name">DannyHe</p>
+           
+              <p class="site-description motion-element" itemprop="description">思绪来得快去得也快,偶尔在这里停留</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+              <div class="site-state-item site-state-categories">
+                  <a href="#">
+                    <span class="site-state-item-count">42.6k</span>
+                    <span class="site-state-item-name">网站码字</span>
+                  </a>
+              </div>
+            
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dannyjiajia" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友邻
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://jucongyuan.github.io" title="Jucongyuan" target="_blank">Jucongyuan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lj20082.github.io" title="Leo" target="_blank">Leo</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-github-alt"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DannyHe</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 88566, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 88566, xid: "2016/07/20/multiline-textbox-wp8-1/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/88566/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>

@@ -1,0 +1,888 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS,Android,Windows Phone," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="iOSiOS下的打包主要由xcodebuild来完成.在xcode 7以前我通过xcodebuild构建项目然后通过xcrun来生成ipa文件.类似以下命令
+12xcodebuild -configuration $&amp;#123;BuildConfig&amp;#125; -target &quot;$&amp;#123;TargetName&amp;#125;&quot; GCC_PREPROCESSOR_DEFINITIONS=&quot;\$&amp;#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不同平台下的项目自动打包方式">
+<meta property="og:url" content="http://dannyhe.wang/2016/08/16/autopackage/index.html">
+<meta property="og:site_name" content="Notes">
+<meta property="og:description" content="iOSiOS下的打包主要由xcodebuild来完成.在xcode 7以前我通过xcodebuild构建项目然后通过xcrun来生成ipa文件.类似以下命令
+12xcodebuild -configuration $&amp;#123;BuildConfig&amp;#125; -target &quot;$&amp;#123;TargetName&amp;#125;&quot; GCC_PREPROCESSOR_DEFINITIONS=&quot;\$&amp;#">
+<meta property="og:updated_time" content="2017-03-31T05:11:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="不同平台下的项目自动打包方式">
+<meta name="twitter:description" content="iOSiOS下的打包主要由xcodebuild来完成.在xcode 7以前我通过xcodebuild构建项目然后通过xcrun来生成ipa文件.类似以下命令
+12xcodebuild -configuration $&amp;#123;BuildConfig&amp;#125; -target &quot;$&amp;#123;TargetName&amp;#125;&quot; GCC_PREPROCESSOR_DEFINITIONS=&quot;\$&amp;#">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":true,"scrollpercent":true},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'I3ACRENDCJ',
+      apiKey: '686fd4a531304857781c8d66ff5b94d4',
+      indexName: 'notes',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://dannyhe.wang/2016/08/16/autopackage/"/>
+
+
+
+
+
+  <title> 不同平台下的项目自动打包方式 | Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">A place to record ideas</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://dannyhe.wang/2016/08/16/autopackage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DannyHe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                不同平台下的项目自动打包方式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-16T11:21:49+00:00">
+                2016-08-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/08/16/autopackage/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2016/08/16/autopackage/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="iOS"><a href="#iOS" class="headerlink" title="iOS"></a>iOS</h1><p>iOS下的打包主要由<code>xcodebuild</code>来完成.在xcode 7以前我通过<code>xcodebuild</code>构建项目然后通过<code>xcrun</code>来生成ipa文件.<br>类似以下命令</p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">xcodebuild -configuration <span class="variable">$&#123;BuildConfig&#125;</span> -target <span class="string">"<span class="variable">$&#123;TargetName&#125;</span>"</span> GCC_PREPROCESSOR_DEFINITIONS=<span class="string">"\<span class="variable">$&#123;GCC_PREPROCESSOR_DEFINITIONS&#125;</span> FREEVERSION=0"</span> WARNING_LDFLAGS=<span class="string">"\<span class="variable">$&#123;WARNING_LDFLAGS&#125;</span> -w"</span> CODE_SIGN_IDENTITY=<span class="string">"<span class="variable">$&#123;DistributionCodeIdentity&#125;</span>"</span> PROVISIONING_PROFILE=<span class="string">"<span class="variable">$&#123;DistributionProvision&#125;</span>"</span></div><div class="line">xcrun -sdk iphoneos PackageApplication -v <span class="string">"<span class="variable">$&#123;ProductDir&#125;</span>/<span class="variable">$&#123;TargetName&#125;</span>.app"</span> -o <span class="string">"<span class="variable">$&#123;PrjDir&#125;</span>/<span class="variable">$&#123;IpaName&#125;</span>"</span></div></pre></td></tr></table></figure>
+<p>这种方式打包有很多局限:</p>
+<ol>
+<li>需要自己备份生成的符号文件等.</li>
+<li>在xcode 7以后这种打包方式不能通过苹果的审核.</li>
+<li>如果需要其他证书的ipa的文件,又需要重新构建.<a id="more"></a>
+</li>
+</ol>
+<p><strong>所以最好的方式是完全模拟xcode的发布包流程:先archive备份,然后通过压缩包导出不同证书的ipa</strong></p>
+<p>如何实现呢? 只需要使用一个命令工具:<code>xcodebuild</code>.<br>这里就只说明xcode 7以后的命令使用方式.<br>首先我们<code>archive</code>项目:</p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">xcodebuild -sdk iphoneos -configuration Release -scheme <span class="variable">$&#123;SchemeName&#125;</span> -target <span class="string">"<span class="variable">$&#123;TargetName&#125;</span>"</span> -archivePath <span class="variable">$&#123;ArchiveFileFullPath&#125;</span> GCC_PREPROCESSOR_DEFINITIONS=<span class="string">"\<span class="variable">$&#123;GCC_PREPROCESSOR_DEFINITIONS&#125;</span> FREEVERSION=0"</span> WARNING_LDFLAGS=<span class="string">"\<span class="variable">$&#123;WARNING_LDFLAGS&#125;</span> -w"</span> CODE_SIGN_IDENTITY=<span class="string">"<span class="variable">$&#123;DistributionCodeIdentity&#125;</span>"</span> PROVISIONING_PROFILE=<span class="string">"<span class="variable">$&#123;DistributionProvision&#125;</span>"</span> archive</div></pre></td></tr></table></figure>
+<ul>
+<li><code>SchemeName</code>为xcode中项目的<code>Scheme</code></li>
+<li><code>TargetName</code>为项目的某个target名称</li>
+<li><code>ArchiveFileFullPath</code>指定<code>xcarchive</code>文件的路径,如<code>HelloWorld.xcarchive</code></li>
+<li><code>DistributionCodeIdentity</code>为证书的标示,值形如<code>iPhone Distribution: xxxx (xxx)</code></li>
+<li><code>DistributionProvision</code>为profile的identifier,值形如<code>xxxx-xxxx-xxx-xxx-xx</code>(其实就是导入xcode后此profile的文件名)</li>
+<li><code>GCC_PREPROCESSOR_DEFINITIONS</code>和<code>WARNING_LDFLAGS</code>都是xcode的环境变量</li>
+</ul>
+<p>生成成功<code>xcarchive</code>文件后我们就可以导出ipa文件了</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">xcodebuild</span> -exportArchive -exportOptionsPlist <span class="variable">$&#123;ExportOptionsPlistPath&#125;</span> -archivePath <span class="variable">$&#123;ArchiveFileFullPath&#125;</span> -exportPath <span class="variable">$&#123;IpaFileDirectory&#125;</span></div></pre></td></tr></table></figure>
+<ul>
+<li><code>ExportOptionsPlistPath</code> 指向一个plist文件的路径,这个plist为这次导出提供参数，这里提供的信息其实就是你在xcode中导出ipa的时候选择的那些选项.</li>
+<li><code>ArchiveFileFullPath</code> 是前面我们生成的<code>xcarchive</code> 文件路径</li>
+<li><code>IpaFileDirectory</code> 是最终导出的ipa的目录(<em>注意这里是目录而不是具体的ipa文件路径</em>)</li>
+</ul>
+<p><code>ExportOptionsPlistPath</code>plist文件的格式类似如下:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></div><div class="line"><span class="meta">&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">"1.0"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>method<span class="tag">&lt;/<span class="name">key</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>app-store<span class="tag">&lt;/<span class="name">string</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>teamID<span class="tag">&lt;/<span class="name">key</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>开发证书的团队ID<span class="tag">&lt;/<span class="name">string</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>当然还有其他参数的控制比如bitcode 符号文件是否打包一起等等.具体里面可以有的参数及取值可以通过<code>xcodebuild -h</code>命令查看.<br><code>method</code>我一般就用到<code>app-store</code>、<code>ad-hoc</code>、<code>development</code>这三个值,通过设置<code>teamID</code>后<code>xcodebuild</code>会自动查找对应的证书(前提是你必选在keychain中安装好这些证书)<br>我们可以在脚本中通过<code>PlistBuddy</code>动态修改这个plist文件的值来实现不同的打包的需求(当然也可以使用几个不同的plist)</p>
+<p>最后我们就得到了xcarchive文件,然后根据不同的需求导出不同证书的ipa文件</p>
+<h1 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h1><p>android上的打包就更复杂些.首先,如果有jni则需要先编译so文件并备份符号文件.然后是java的混淆日志文件等等.<br>不过android上则按着平时打包的步骤写成脚本就好<code>ant</code>或者<code>gradle</code>任务.<br>我推荐使用<code>gradle</code>插件进行开发,一是和<code>Android Studio</code>结合很强大,二是<code>gradle</code>可以直接调用<code>ant</code>任务:)</p>
+<h1 id="Windows-Phone"><a href="#Windows-Phone" class="headerlink" title="Windows Phone"></a>Windows Phone</h1><p>在<code>VS</code>里构建用的命令是<code>msbuild</code>(Microsoft Build Engine),它和<code>ant</code>的形式有些类似.是基于<code>xml</code>的配置，<br>其实<code>VS</code>中我们的设置最终落实到的依然是<code>Microsoft Build Engine</code>.这个xml文件就是<code>*.*proj</code>文件.<br>只是这里需要注意<code>Windows</code>下标准命令行的上下文是没有<code>msbuild</code>命令的.<br>我们需要运行类似名为<code>Visual Studio 2012 xxxx命令提示</code>的工具,但是我们可以手动将这个环境变量加入我们的<code>DOS</code>里.<br>比如下面的脚本先设置上下文,然后执行<code>msbuild</code>命令</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">@echo off</div><div class="line">echo.<span class="comment">/*</span></div><div class="line">echo. * Check VC++ environment...</div><div class="line">echo. */</div><div class="line">echo.</div><div class="line"></div><div class="line"><span class="keyword">set</span> FOUND_VC=0</div><div class="line"><span class="keyword">set</span> FOUND_OUTDIR=0</div><div class="line"></div><div class="line"><span class="keyword">if</span> not <span class="string">"%~1"</span>==<span class="string">""</span> <span class="keyword">set</span> FOUND_OUTDIR=1</div><div class="line"></div><div class="line"><span class="keyword">if</span> defined VS120COMNTOOLS (</div><div class="line">    <span class="keyword">set</span> VSTOOLS=<span class="string">"%VS120COMNTOOLS%"</span></div><div class="line">    <span class="keyword">set</span> VC_VER=120</div><div class="line">    <span class="keyword">set</span> FOUND_VC=1</div><div class="line">) </div><div class="line"></div><div class="line"><span class="keyword">set</span> VSTOOLS=%VSTOOLS:"=%</div><div class="line"><span class="keyword">set</span> <span class="string">"VSTOOLS=%VSTOOLS:\=/%"</span></div><div class="line"><span class="keyword">set</span> VSVARS=<span class="string">"%VSTOOLS%vsvars32.bat"</span></div><div class="line"><span class="keyword">if</span> not defined VSVARS (</div><div class="line">    echo Can't find VC2013 installed!</div><div class="line">    goto <span class="keyword">ERROR</span></div><div class="line">)</div><div class="line">echo.<span class="comment">/*</span></div><div class="line">echo. * Building Windows Phone Project...</div><div class="line">echo. */</div><div class="line">echo.</div><div class="line">call %VSVARS%</div><div class="line"><span class="keyword">if</span> %FOUND_VC%==1 (</div><div class="line">	msbuild  HelloWorld.WindowsPhone.vcxproj /p:Configuration=<span class="string">"Release"</span>  /p:Platform=<span class="string">"ARM"</span> /t:Clean;Rebuild</div><div class="line">)</div></pre></td></tr></table></figure>
+<p><code>msbuild  HelloWorld.WindowsPhone.vcxproj /p:Configuration=&quot;Release&quot;  /p:Platform=&quot;ARM&quot; /t:Clean;Rebuild</code>表示在<code>Release</code>模式下清理然后重新构建<code>HelloWorld.WindowsPhone.vcxproj</code>项目,目标平台为<code>ARM</code>.<br>命令会按以前构建的目标目录导出最终的包文件,如果之前没设置,则在当前目录.如果需要指定通过参数<code>/p:OutDir=路径</code>设置</p>
+<h2 id="验证安装包"><a href="#验证安装包" class="headerlink" title="验证安装包"></a>验证安装包</h2><p>微软提供了一个命令行工具<code>appcert.exe</code>来验证,这个文件的一般路径为:<code>C:\Program Files (x86)\Windows Kits\10\App Certification Kit\appcert.exe</code></p>
+<blockquote>
+<p>appcert.exe test -appxpackagepath 包路径 -reportoutputpath 生成xml格式的报告文件路径</p>
+</blockquote>
+<p><strong>注意:这里说明的是基于<code>VS2013</code>的开发环境.<code>VS2015</code>可能有些出入.</strong></p>
+<h2 id="部署安装包到设备"><a href="#部署安装包到设备" class="headerlink" title="部署安装包到设备"></a>部署安装包到设备</h2><p><code>AppDeployCmd.exe</code><br>一般路径为:<code>C:\Program Files (x86)\Microsoft SDKs\Windows Phone\v8.1\Tools\AppDeploy\AppDeployCmd.exe</code></p>
+<blockquote>
+<p>AppDeployCmd.exe /install 包路径 /targetdevice:de</p>
+</blockquote>
+<p>End:)</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      DannyHe
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://dannyhe.wang/2016/08/16/autopackage/" title="不同平台下的项目自动打包方式">http://dannyhe.wang/2016/08/16/autopackage/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by/2.5/cn/" rel="external nofollow" target="_blank">CC BY 2.5 CN</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Windows-Phone/" rel="tag"># Windows Phone</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/03/thinking-core-graphics/" rel="next" title="说说Core Graphics">
+                <i class="fa fa-chevron-left"></i> 说说Core Graphics
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/13/login-with-curl/" rel="prev" title="2017开篇:curl使用备忘">
+                2017开篇:curl使用备忘 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460"
+               alt="DannyHe" />
+          <p class="site-author-name" itemprop="name">DannyHe</p>
+           
+              <p class="site-description motion-element" itemprop="description">思绪来得快去得也快,偶尔在这里停留</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+              <div class="site-state-item site-state-categories">
+                  <a href="#">
+                    <span class="site-state-item-count">42.6k</span>
+                    <span class="site-state-item-name">网站码字</span>
+                  </a>
+              </div>
+            
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dannyjiajia" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友邻
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://jucongyuan.github.io" title="Jucongyuan" target="_blank">Jucongyuan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lj20082.github.io" title="Leo" target="_blank">Leo</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#iOS"><span class="nav-number">1.</span> <span class="nav-text">iOS</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Android"><span class="nav-number">2.</span> <span class="nav-text">Android</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Windows-Phone"><span class="nav-number">3.</span> <span class="nav-text">Windows Phone</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#验证安装包"><span class="nav-number">3.1.</span> <span class="nav-text">验证安装包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署安装包到设备"><span class="nav-number">3.2.</span> <span class="nav-text">部署安装包到设备</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-github-alt"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DannyHe</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 88566, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 88566, xid: "2016/08/16/autopackage/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/88566/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>

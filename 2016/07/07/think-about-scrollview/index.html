@@ -1,0 +1,894 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS,Cocos2dx,OpenGL," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一直使用quick。之前一直忙着做项目,都没有空停下来好好想想OpenGL的一些知识.今天和同事分析了下ClippingNode的实现,记录在这里。
+quick的尴尬quick用裁剪测试,实现了一个lua版的UIScrollView.lua,可以满足简单的裁剪和滑动需求.
+123local UIScrollView = class(&quot;UIScrollView&quot;, function()	return">
+<meta property="og:type" content="article">
+<meta property="og:title" content="quick的ScrollView随想">
+<meta property="og:url" content="http://dannyhe.wang/2016/07/07/think-about-scrollview/index.html">
+<meta property="og:site_name" content="Notes">
+<meta property="og:description" content="一直使用quick。之前一直忙着做项目,都没有空停下来好好想想OpenGL的一些知识.今天和同事分析了下ClippingNode的实现,记录在这里。
+quick的尴尬quick用裁剪测试,实现了一个lua版的UIScrollView.lua,可以满足简单的裁剪和滑动需求.
+123local UIScrollView = class(&quot;UIScrollView&quot;, function()	return">
+<meta property="og:updated_time" content="2017-03-31T05:11:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="quick的ScrollView随想">
+<meta name="twitter:description" content="一直使用quick。之前一直忙着做项目,都没有空停下来好好想想OpenGL的一些知识.今天和同事分析了下ClippingNode的实现,记录在这里。
+quick的尴尬quick用裁剪测试,实现了一个lua版的UIScrollView.lua,可以满足简单的裁剪和滑动需求.
+123local UIScrollView = class(&quot;UIScrollView&quot;, function()	return">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":true,"scrollpercent":true},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'I3ACRENDCJ',
+      apiKey: '686fd4a531304857781c8d66ff5b94d4',
+      indexName: 'notes',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://dannyhe.wang/2016/07/07/think-about-scrollview/"/>
+
+
+
+
+
+  <title> quick的ScrollView随想 | Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">A place to record ideas</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://dannyhe.wang/2016/07/07/think-about-scrollview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DannyHe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                quick的ScrollView随想
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-07-07T15:27:13+00:00">
+                2016-07-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/07/07/think-about-scrollview/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2016/07/07/think-about-scrollview/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一直使用<code>quick</code>。之前一直忙着做项目,都没有空停下来好好想想OpenGL的一些知识.今天和同事分析了下<code>ClippingNode</code>的实现,记录在这里。</p>
+<h3 id="quick的尴尬"><a href="#quick的尴尬" class="headerlink" title="quick的尴尬"></a>quick的尴尬</h3><p>quick用裁剪测试,实现了一个lua版的<code>UIScrollView.lua</code>,可以满足简单的裁剪和滑动需求.</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">local</span> UIScrollView = class(<span class="string">"UIScrollView"</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span></div><div class="line">	<span class="keyword">return</span> display.newClippingRegionNode()</div><div class="line"><span class="keyword">end</span>)</div></pre></td></tr></table></figure>
+<p>如果我们需要滑动列表能嵌套(横(竖)向中嵌入竖(横)向的列表),这个列表就不能满足我们的需求了.</p>
+<p><code>ClippingRectangleNode</code>的核心实现是根据OpenGL的裁剪测试</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">glEnable(<span class="name">GL_SCISSOR_TEST</span>)<span class="comment">;</span></div><div class="line">glScissor(<span class="name">x</span>,y,width,height)<span class="comment">;</span></div><div class="line">glDisable(<span class="name">GL_SCISSOR_TEST</span>)<span class="comment">;</span></div></pre></td></tr></table></figure>
+<h3 id="ClippingNode原理"><a href="#ClippingNode原理" class="headerlink" title="ClippingNode原理"></a>ClippingNode原理</h3><p><code>ClippingNode</code>采用模板测试实现裁剪,可实现裁剪的嵌套.这里分析它的实现步骤。<br><a id="more"></a></p>
+<h4 id="模板测试"><a href="#模板测试" class="headerlink" title="模板测试"></a>模板测试</h4><p>模板缓冲中的模板值(Stencil Value)通常是8位的，因此每个片段/像素共有256种不同的模板值，2dx在启动时便设置了这个值</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">bool</span> GLViewImpl::initWithRect(<span class="keyword">const</span> std::<span class="keyword">string</span>&amp; viewName, Rect <span class="built_in">rect</span>, <span class="keyword">float</span> frameZoomFactor)</div><div class="line">&#123;</div><div class="line">    CGRect r = CGRectMake(<span class="built_in">rect</span>.origin.x, <span class="built_in">rect</span>.origin.y, <span class="built_in">rect</span>.<span class="built_in">size</span>.<span class="built_in">width</span>, <span class="built_in">rect</span>.<span class="built_in">size</span>.<span class="built_in">height</span>);</div><div class="line">    convertAttrs();</div><div class="line">    CCEAGLView *eaglview = [CCEAGLView viewWithFrame: r</div><div class="line">                                       pixelFormat: (NSString*)_pixelFormat</div><div class="line">                                       depthFormat: _depthFormat <span class="comment">//iOS上设置深度测试和模板测试的参数为GL_DEPTH24_STENCIL8_OES</span></div><div class="line">                                preserveBackbuffer: NO</div><div class="line">                                        sharegroup: nil</div><div class="line">                                     multiSampling: NO</div><div class="line">                                   numberOfSamples: <span class="number">0</span>];</div><div class="line"></div><div class="line">    [eaglview setMultipleTouchEnabled:YES];</div><div class="line"></div><div class="line">    _screenSize.<span class="built_in">width</span> = _designResolutionSize.<span class="built_in">width</span> = [eaglview getWidth];</div><div class="line">    _screenSize.<span class="built_in">height</span> = _designResolutionSize.<span class="built_in">height</span> = [eaglview getHeight];</div><div class="line"><span class="comment">//    _scaleX = _scaleY = [eaglview contentScaleFactor];</span></div><div class="line"></div><div class="line">    _eaglview = eaglview;</div><div class="line"></div><div class="line">    <span class="built_in">return</span> true;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>更多信息可以参考<a href="http://learnOpenGL-cn.readthedocs.io/zh/latest/04%20Advanced%20OpenGL/02%20Stencil%20testing/" target="_blank" rel="external">这篇文章</a></p>
+<h4 id="一般情况-不嵌套"><a href="#一般情况-不嵌套" class="headerlink" title="一般情况(不嵌套)"></a>一般情况(不嵌套)</h4><p>我们这里分析<code>_inverted</code>为<code>false</code>的情况,也就是保留裁剪区域内的内容的情况.</p>
+<h5 id="onBeforeVisit"><a href="#onBeforeVisit" class="headerlink" title="onBeforeVisit"></a>onBeforeVisit</h5><p>开始绘制时,首先计算出这个<code>ClippingNode</code>的位遮罩(Bitmask)-<code>mask_layer</code></p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// increment the current layer</span></div><div class="line">s_layer++;</div><div class="line"></div><div class="line"><span class="comment">// mask of the current layer (ie: for layer 3: 00000100)</span></div><div class="line">GLint mask_layer = <span class="number">0</span>x1 &lt;&lt; s_layer;</div><div class="line"><span class="comment">// mask of all layers less than the current (ie: for layer 3: 00000011)</span></div><div class="line">GLint mask_layer_l = mask_layer - <span class="number">1</span>;</div><div class="line"><span class="comment">// mask of all layers less than or equal to the current (ie: for layer 3: 00000111)</span></div><div class="line">_mask_layer_le = mask_layer | mask_layer_l;</div></pre></td></tr></table></figure>
+<p>s_layer = 0</p>
+<p>mask_layer = 1</p>
+<p>mask_layer_l = 0</p>
+<p>_mask_layer_le = 1</p>
+<p>然后保存下模板测试的当前的状态,接着开启模板测试，设置位遮罩</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// enable stencil use</span></div><div class="line"><span class="selector-tag">glEnable</span>(GL_STENCIL_TEST);</div><div class="line"><span class="comment">// check for OpenGL error while enabling stencil test</span></div><div class="line"><span class="selector-tag">CHECK_GL_ERROR_DEBUG</span>();</div><div class="line"></div><div class="line"><span class="comment">// all bits on the stencil buffer are readonly, except the current layer bit,</span></div><div class="line"><span class="comment">// this means that operation like glClear or glStencilOp will be masked with this value</span></div><div class="line"><span class="selector-tag">glStencilMask</span>(mask_layer);</div></pre></td></tr></table></figure>
+<p><code>glStencilMask</code>设置的值为<code>0x1</code>,就是告诉缓冲对模板值的最后一位是可写的。</p>
+<p>接着清空模板缓冲中的值，设置结果为<code>GL_NEVER</code>,永远不通过,不通过时执行<code>GL_ZERO</code>操作(<code>_inverted</code>为<code>false</code>),绘制一个全屏的矩形</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">glStencilFunc</span>(GL_NEVER, mask_layer, mask_layer);</div><div class="line"><span class="selector-tag">glStencilOp</span>(!_inverted ? <span class="attribute">GL_ZERO </span>: GL_REPLACE, GL_KEEP, GL_KEEP);</div><div class="line"></div><div class="line"><span class="selector-tag">drawFullScreenQuadClearStencil</span>();</div></pre></td></tr></table></figure>
+<p>此时模板缓冲中的值为,假设下面的矩阵表示了一个屏幕中的所有模板缓冲值.<strong>也就是一个0表示的是8位二进制结果<code>0x00000000</code></strong></p>
+<p>$$\begin{matrix} 0&amp;0&amp;0&amp;0&amp;0 \\ 0&amp;0&amp;0&amp;0&amp;0 \\ 0&amp;0&amp;0&amp;0&amp;0 \\ 0&amp;0&amp;0&amp;0&amp;0 \\ 0&amp;0&amp;0&amp;0&amp;0  \end{matrix}$$</p>
+<p>然后开始准备画我们的<code>蒙版</code>,仍然是测试永远不通过,如果不通过执行<code>mask_layer</code>(0x1)的最后一位<code>替换</code>到模板值的最后一位</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">glStencilFunc</span>(GL_NEVER, mask_layer, mask_layer);</div><div class="line"><span class="selector-tag">glStencilOp</span>(!_inverted ? <span class="attribute">GL_REPLACE </span>: GL_ZERO, GL_KEEP, GL_KEEP);</div></pre></td></tr></table></figure>
+<p>然后模板缓冲中的值为</p>
+<p>$$\begin{matrix} 0&amp;0&amp;0&amp;0&amp;0 \\ 0&amp;1&amp;1&amp;1&amp;0 \\ 0&amp;1&amp;1&amp;1&amp;0 \\ 0&amp;1&amp;1&amp;1&amp;0 \\ 0&amp;0&amp;0&amp;0&amp;0  \end{matrix}$$</p>
+<h5 id="onAfterDrawStencil"><a href="#onAfterDrawStencil" class="headerlink" title="onAfterDrawStencil"></a>onAfterDrawStencil</h5><p>在<code>蒙版</code>绘制完后,开始绘制子节点前设置测试操作</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">glStencilFunc(<span class="name">GL_EQUAL</span>, _mask_layer_le, _mask_layer_le)<span class="comment">;</span></div><div class="line">glStencilOp(<span class="name">GL_KEEP</span>, GL_KEEP, GL_KEEP)<span class="comment">;</span></div></pre></td></tr></table></figure>
+<p>保留满足公式<code>(模板值 &amp; _mask_layer_le) == (_mask_layer_le &amp; _mask_layer_le)</code>的模板值片段,也就是上面图中得所有1位置的片段,也就是我们<code>蒙版</code>中的图像.<code>模板值 &amp; 1 == 1</code></p>
+<h5 id="onAfterVisit"><a href="#onAfterVisit" class="headerlink" title="onAfterVisit"></a>onAfterVisit</h5><p>最后还原一开始保留的模板测试的状态,关闭模板测试<br><figure class="highlight sqf"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">void ClippingNode::onAfterVisit()</div><div class="line">&#123;</div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> DIRECTX_ENABLED == 0</span></div><div class="line">    <span class="comment">///////////////////////////////////</span></div><div class="line">    <span class="comment">// CLEANUP</span></div><div class="line"></div><div class="line">    <span class="comment">// manually restore the stencil state</span></div><div class="line">    glStencilFunc(<span class="variable">_currentStencilFunc</span>, <span class="variable">_currentStencilRef</span>, <span class="variable">_currentStencilValueMask</span>);</div><div class="line">    glStencilOp(<span class="variable">_currentStencilFail</span>, <span class="variable">_currentStencilPassDepthFail</span>, <span class="variable">_currentStencilPassDepthPass</span>);</div><div class="line">    glStencilMask(<span class="variable">_currentStencilWriteMask</span>);</div><div class="line">    <span class="keyword">if</span> (!<span class="variable">_currentStencilEnabled</span>)</div><div class="line">    &#123;</div><div class="line">        glDisable(GL_STENCIL_TEST);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// we are done using this layer, decrement</span></div><div class="line">    s_layer--;</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="嵌套的情况"><a href="#嵌套的情况" class="headerlink" title="嵌套的情况"></a>嵌套的情况</h4><p>我们假设上面的<code>ClippingNode</code>有一个<code>ClippingNode</code>类型的<code>child</code><br>先绘制父节点,然后才绘制子节点<code>ClippingNode</code><br>也就是在父节点执行绘制子节点的时候,子节点<code>ClippingNode</code>会有下面的步骤</p>
+<h5 id="onBeforeVisit-1"><a href="#onBeforeVisit-1" class="headerlink" title="onBeforeVisit"></a>onBeforeVisit</h5><p>s_layer = 1</p>
+<p>mask_layer = 2</p>
+<p>mask_layer_l = 1</p>
+<p>_mask_layer_le = 3</p>
+<p>$$\begin{matrix} 0&amp;0&amp;0&amp;0&amp;0 \\ 0&amp;1&amp;1&amp;1&amp;0 \\ 2&amp;3&amp;3&amp;3&amp;2 \\ 0&amp;1&amp;1&amp;1&amp;0 \\ 0&amp;0&amp;0&amp;0&amp;0  \end{matrix}$$</p>
+<h5 id="onAfterDrawStencil-1"><a href="#onAfterDrawStencil-1" class="headerlink" title="onAfterDrawStencil"></a>onAfterDrawStencil</h5><p><code>(模板值 &amp; _mask_layer_le) == (_mask_layer_le &amp; _mask_layer_le)</code> $\to$ <code>(模板值 &amp; 3) == (3 &amp; 3)</code><br>也就是只有模板值为<code>3</code>的片段会被保留</p>
+<h3 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h3><p><del>猜测下iOS中的<code>UIScrollView</code>也是基于模板测试,当然有可能不嵌套的时候也是使用的<code>glScissor</code>,毕竟模板测试会多两次drawcall.</del><br>最后如何改造<code>qucik</code>的<code>UIScrollView.lua</code></p>
+<ol>
+<li><p>继承<code>cc.ClippingNode</code></p>
+</li>
+<li><p><code>setViewRect</code>的实现修改为设置<code>setStencil</code></p>
+</li>
+<li><p>将<code>addTouchNode</code>中<code>node</code>设置为传递事件<code>setTouchSwallowEnabled(false)</code></p>
+</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      DannyHe
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://dannyhe.wang/2016/07/07/think-about-scrollview/" title="quick的ScrollView随想">http://dannyhe.wang/2016/07/07/think-about-scrollview/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by/2.5/cn/" rel="external nofollow" target="_blank">CC BY 2.5 CN</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/Cocos2dx/" rel="tag"># Cocos2dx</a>
+          
+            <a href="/tags/OpenGL/" rel="tag"># OpenGL</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/04/matrix-ios-and-opengl/" rel="next" title="iOS(Core Graphics)和OpenGL里的矩阵运算">
+                <i class="fa fa-chevron-left"></i> iOS(Core Graphics)和OpenGL里的矩阵运算
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/07/15/etc1-alpha-on-android-cocos2dx/" rel="prev" title="Cocos2dx在Android上使用ETC1+Alpha压缩纹理">
+                Cocos2dx在Android上使用ETC1+Alpha压缩纹理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460"
+               alt="DannyHe" />
+          <p class="site-author-name" itemprop="name">DannyHe</p>
+           
+              <p class="site-description motion-element" itemprop="description">思绪来得快去得也快,偶尔在这里停留</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+              <div class="site-state-item site-state-categories">
+                  <a href="#">
+                    <span class="site-state-item-count">42.6k</span>
+                    <span class="site-state-item-name">网站码字</span>
+                  </a>
+              </div>
+            
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dannyjiajia" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友邻
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://jucongyuan.github.io" title="Jucongyuan" target="_blank">Jucongyuan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lj20082.github.io" title="Leo" target="_blank">Leo</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#quick的尴尬"><span class="nav-number">1.</span> <span class="nav-text">quick的尴尬</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ClippingNode原理"><span class="nav-number">2.</span> <span class="nav-text">ClippingNode原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#模板测试"><span class="nav-number">2.1.</span> <span class="nav-text">模板测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一般情况-不嵌套"><span class="nav-number">2.2.</span> <span class="nav-text">一般情况(不嵌套)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#onBeforeVisit"><span class="nav-number">2.2.1.</span> <span class="nav-text">onBeforeVisit</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onAfterDrawStencil"><span class="nav-number">2.2.2.</span> <span class="nav-text">onAfterDrawStencil</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onAfterVisit"><span class="nav-number">2.2.3.</span> <span class="nav-text">onAfterVisit</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#嵌套的情况"><span class="nav-number">2.3.</span> <span class="nav-text">嵌套的情况</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#onBeforeVisit-1"><span class="nav-number">2.3.1.</span> <span class="nav-text">onBeforeVisit</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onAfterDrawStencil-1"><span class="nav-number">2.3.2.</span> <span class="nav-text">onAfterDrawStencil</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最后"><span class="nav-number">3.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-github-alt"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DannyHe</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 88566, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 88566, xid: "2016/07/07/think-about-scrollview/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/88566/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>

@@ -1,0 +1,895 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,RxJava," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="storiostorio是github上的开源项目,它用来操作SQLiteDatabase和 ContentResolver的操作进行封装,提供更简单更强大的api.我们项目最近从xutils3转换为StorIOSQLite,说说对它的体验和它是如何使用RxJava进行封装.
+storio是通过预先代码生成进行实体类的赋值通过SQLiteTypeMapping提供实体的三种Resolver:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="介绍下StorIOSQLite到RxJava">
+<meta property="og:url" content="http://dannyhe.wang/2017/03/31/think-about-storio/index.html">
+<meta property="og:site_name" content="Notes">
+<meta property="og:description" content="storiostorio是github上的开源项目,它用来操作SQLiteDatabase和 ContentResolver的操作进行封装,提供更简单更强大的api.我们项目最近从xutils3转换为StorIOSQLite,说说对它的体验和它是如何使用RxJava进行封装.
+storio是通过预先代码生成进行实体类的赋值通过SQLiteTypeMapping提供实体的三种Resolver:">
+<meta property="og:updated_time" content="2017-03-31T05:11:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="介绍下StorIOSQLite到RxJava">
+<meta name="twitter:description" content="storiostorio是github上的开源项目,它用来操作SQLiteDatabase和 ContentResolver的操作进行封装,提供更简单更强大的api.我们项目最近从xutils3转换为StorIOSQLite,说说对它的体验和它是如何使用RxJava进行封装.
+storio是通过预先代码生成进行实体类的赋值通过SQLiteTypeMapping提供实体的三种Resolver:">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":true,"scrollpercent":true},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'I3ACRENDCJ',
+      apiKey: '686fd4a531304857781c8d66ff5b94d4',
+      indexName: 'notes',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://dannyhe.wang/2017/03/31/think-about-storio/"/>
+
+
+
+
+
+  <title> 介绍下StorIOSQLite到RxJava | Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">A place to record ideas</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://dannyhe.wang/2017/03/31/think-about-storio/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DannyHe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                介绍下StorIOSQLite到RxJava
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-31T09:46:40+00:00">
+                2017-03-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/03/31/think-about-storio/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/03/31/think-about-storio/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="storio"><a href="#storio" class="headerlink" title="storio"></a>storio</h2><p><code>storio</code>是github上的<a href="https://github.com/pushtorefresh/storio" target="_blank" rel="external">开源项目</a>,它用来操作<code>SQLiteDatabase</code>和 <code>ContentResolver</code>的操作进行封装,提供更简单更强大的api.我们项目最近从<code>xutils3</code>转换为<code>StorIOSQLite</code>,说说对它的体验和它是如何使用<code>RxJava</code>进行封装.</p>
+<h3 id="storio是通过预先代码生成进行实体类的赋值"><a href="#storio是通过预先代码生成进行实体类的赋值" class="headerlink" title="storio是通过预先代码生成进行实体类的赋值"></a>storio是通过预先代码生成进行实体类的赋值</h3><p>通过<code>SQLiteTypeMapping</code>提供实体的三种<code>Resolver</code>: </p>
+<ol>
+<li>PutResolver </li>
+<li>GetResolver</li>
+<li>DeleteResolver</li>
+</ol>
+<p>也就是分别对应我们在进行API操作时</p>
+<ol>
+<li>将实体转换为数据库数据(InsertQuery,UpdateQuery…)</li>
+<li>将数据库数据(Cursor)装换成实体对象</li>
+<li>如何执行删除操作</li>
+</ol>
+<p>常规的<code>Resolver</code>只要我在实体类中使用它的<code>Annotation Processor</code>便会自动生成。</p>
+<blockquote>
+<p>什么时候需要自定义呢?</p>
+</blockquote>
+<p>复杂实体对象的时候(连表查询),因为<code>storio</code>是不关心具体实体类的,它只关心如何将实体和数据库操作建立起关系<br>比如文档中的<a href="https://github.com/pushtorefresh/storio/blob/master/storio-sample-app/src/main/java/com/pushtorefresh/storio/sample/db/resolvers/UserWithTweetsGetResolver.java" target="_blank" rel="external">UserWithTweetsGetResolver.java</a><br><a id="more"></a></p>
+<blockquote>
+<p>借鉴xutils利用<code>HashMap</code>来定义通用的读取实体</p>
+</blockquote>
+<figure class="highlight java"><figcaption><span>DbModel.java</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> android.text.TextUtils;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.Date;</div><div class="line"><span class="keyword">import</span> java.util.HashMap;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DbModel</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * key: columnName</div><div class="line">     * value: valueStr</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> HashMap&lt;String, String&gt; dataMap = <span class="keyword">new</span> HashMap&lt;String, String&gt;();</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getString</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> dataMap.get(columnName);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getInt</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Integer.valueOf(dataMap.get(columnName));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">getBoolean</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        String value = dataMap.get(columnName);</div><div class="line">        <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">return</span> value.length() == <span class="number">1</span> ? <span class="string">"1"</span>.equals(value) : Boolean.valueOf(value);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getDouble</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Double.valueOf(dataMap.get(columnName));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getFloat</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Float.valueOf(dataMap.get(columnName));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getLong</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Long.valueOf(dataMap.get(columnName));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Date <span class="title">getDate</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> date = Long.valueOf(dataMap.get(columnName));</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Date(date);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> java.sql.<span class="function">Date <span class="title">getSqlDate</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> date = Long.valueOf(dataMap.get(columnName));</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> java.sql.Date(date);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(String columnName, String valueStr)</span> </span>&#123;</div><div class="line">        dataMap.put(columnName, valueStr);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * <span class="doctag">@return</span> key: columnName</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> HashMap&lt;String, String&gt; <span class="title">getDataMap</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> dataMap;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * <span class="doctag">@param</span> columnName</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">(String columnName)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> TextUtils.isEmpty(dataMap.get(columnName));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>提供SQLiteTypeMapping,只提供get操作</p>
+</blockquote>
+<figure class="highlight java"><figcaption><span>DbModelSQLiteTypeMapping.java</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> android.database.Cursor;</div><div class="line"><span class="keyword">import</span> android.support.annotation.NonNull;</div><div class="line"></div><div class="line"><span class="keyword">import</span> com.pushtorefresh.storio.sqlite.SQLiteTypeMapping;</div><div class="line"><span class="keyword">import</span> com.pushtorefresh.storio.sqlite.StorIOSQLite;</div><div class="line"><span class="keyword">import</span> com.pushtorefresh.storio.sqlite.operations.delete.DeleteResolver;</div><div class="line"><span class="keyword">import</span> com.pushtorefresh.storio.sqlite.operations.delete.DeleteResult;</div><div class="line"><span class="keyword">import</span> com.pushtorefresh.storio.sqlite.operations.get.DefaultGetResolver;</div><div class="line"><span class="keyword">import</span> com.pushtorefresh.storio.sqlite.operations.put.PutResolver;</div><div class="line"><span class="keyword">import</span> com.pushtorefresh.storio.sqlite.operations.put.PutResult;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Created by dannyhe on 14/01/2017.</div><div class="line"> */</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DbModelSQLiteTypeMapping</span> <span class="keyword">extends</span> <span class="title">SQLiteTypeMapping</span>&lt;<span class="title">DbModel</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">DBModelPutResolver</span> <span class="keyword">extends</span> <span class="title">PutResolver</span>&lt;<span class="title">DbModel</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">		<span class="meta">@NonNull</span></div><div class="line">		<span class="meta">@Override</span></div><div class="line">		<span class="function"><span class="keyword">public</span> PutResult <span class="title">performPut</span><span class="params">(@NonNull StorIOSQLite storIOSQLite, @NonNull DbModel object)</span> </span>&#123;</div><div class="line">			<span class="keyword">return</span> PutResult.newUpdateResult(<span class="number">0</span>,<span class="string">""</span>);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">DBModelGetResolver</span> <span class="keyword">extends</span> <span class="title">DefaultGetResolver</span>&lt;<span class="title">DbModel</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">		<span class="meta">@NonNull</span></div><div class="line">		<span class="meta">@Override</span></div><div class="line">		<span class="function"><span class="keyword">public</span> DbModel <span class="title">mapFromCursor</span><span class="params">(@NonNull Cursor cursor)</span> </span>&#123;</div><div class="line">			DbModel result = <span class="keyword">new</span> DbModel();</div><div class="line">			<span class="keyword">int</span> columnCount = cursor.getColumnCount();</div><div class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; columnCount; i++) &#123;</div><div class="line">				result.add(cursor.getColumnName(i), cursor.getString(i));</div><div class="line">			&#125;</div><div class="line">			<span class="keyword">return</span> result;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">DBModelDeleteResolver</span> <span class="keyword">extends</span> <span class="title">DeleteResolver</span>&lt;<span class="title">DbModel</span>&gt; </span>&#123;</div><div class="line">		<span class="meta">@NonNull</span></div><div class="line">		<span class="meta">@Override</span></div><div class="line">		<span class="function"><span class="keyword">public</span> DeleteResult <span class="title">performDelete</span><span class="params">(@NonNull StorIOSQLite storIOSQLite, @NonNull DbModel object)</span> </span>&#123;</div><div class="line">			<span class="keyword">return</span> DeleteResult.newInstance(<span class="number">0</span>,<span class="string">""</span>);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">DbModelSQLiteTypeMapping</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">super</span>(<span class="keyword">new</span> DBModelPutResolver(),</div><div class="line">				<span class="keyword">new</span> DBModelGetResolver(),</div><div class="line">				<span class="keyword">new</span> DBModelDeleteResolver());</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>如何使用</p>
+</blockquote>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">StorIOSQLite mStorIOSQLite =  DefaultStorIOSQLite.builder()</div><div class="line"><span class="meta">    .sqliteOpenHelper</span>(dbOpenHelper)</div><div class="line"><span class="meta">    .defaultScheduler</span>(defaultStorIOSQLiteScheduler()) //io thread</div><div class="line"><span class="meta">    .addTypeMapping</span>(DbModel.class, new DbModelSQLiteTypeMapping())</div><div class="line"><span class="meta">    .build</span><span class="comment">;</span></div><div class="line"></div><div class="line">DbModel dbModel = mStorIOSQLite.get()</div><div class="line"><span class="meta">                .object</span>(DbModel.class)</div><div class="line"><span class="meta">                .withQuery</span>(RawQuery.builder()</div><div class="line"><span class="meta">                        .query</span>(<span class="string">"SELECT COUNT(*) AS c FROM sqlite_master WHERE type=? AND name=?"</span>)</div><div class="line"><span class="meta">                        .args</span>(<span class="string">"table"</span>, tableName)</div><div class="line"><span class="meta">                        .build</span>())</div><div class="line"><span class="meta">                .prepare</span>()</div><div class="line"><span class="meta">                .executeAsBlocking</span>()<span class="comment">;</span></div></pre></td></tr></table></figure>
+<h3 id="Entity-VS-Cursor"><a href="#Entity-VS-Cursor" class="headerlink" title="Entity VS Cursor"></a>Entity VS Cursor</h3><p><code>storio</code>提供了两种读取方式:</p>
+<ol>
+<li><p>Entity </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">DbModel dbModel = mStorIOSQLite.get()</div><div class="line">                .object(DbModel.class)</div><div class="line">                .withQuery(RawQuery.builder()</div><div class="line">                        .query("<span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(*) <span class="keyword">AS</span> c <span class="keyword">FROM</span> sqlite_master <span class="keyword">WHERE</span> <span class="keyword">type</span>=? <span class="keyword">AND</span> <span class="keyword">name</span>=?<span class="string">")</span></div><div class="line">                        .args("<span class="keyword">table</span><span class="string">", tableName)</span></div><div class="line">                        .build())</div><div class="line">                .prepare()</div><div class="line">                .executeAsBlocking();</div></pre></td></tr></table></figure>
+</li>
+<li><p>Cursor</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">final Cursor dbModelCursor = mStorIOSQLite.get()</div><div class="line">                .cursor()</div><div class="line">                .withQuery(RawQuery.builder()</div><div class="line">                        .query("<span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(*) <span class="keyword">AS</span> c <span class="keyword">FROM</span> sqlite_master <span class="keyword">WHERE</span> <span class="keyword">type</span>=? <span class="keyword">AND</span> <span class="keyword">name</span>=?<span class="string">")</span></div><div class="line">                        .args("<span class="keyword">table</span><span class="string">", tableName)</span></div><div class="line">                        .build())</div><div class="line">                .prepare()</div><div class="line">                .executeAsBlocking();</div><div class="line">...</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="RxJava-VS-executeAsBlocking"><a href="#RxJava-VS-executeAsBlocking" class="headerlink" title="RxJava VS executeAsBlocking"></a>RxJava VS executeAsBlocking</h3><h4 id="理解"><a href="#理解" class="headerlink" title="理解"></a>理解</h4><p>关于<code>RxJava</code>的应用(<code>asRxObservable()</code>),目前数据库框架基本上都是利用<code>PublishSubject</code>.每个<code>StorIOSQLite</code>内部有个<code>RxChangesBus</code>,所有的<code>asRxObservable()</code>方法都是订阅这个bus.<br>订阅时会对Bus的事件过滤,只留下这次查询需要的变化(通过数据表的名称过滤)生成Observable.并通过<code>startWith</code>插入一次查询的结果,用来解决订阅时没有事件源触发查询操作的问题.</p>
+<p>我们来分析下面的查询<code>StorIOSQLite</code>到底做了什么,下面的查询来自官网的文档:<br>我们先按着链式阅读来理解这个方法</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">mStorIOSQLite</span></div><div class="line">  <span class="selector-class">.get</span>()</div><div class="line">  <span class="selector-class">.listOfObjects</span>(Tweet.class)</div><div class="line">  <span class="selector-class">.withQuery</span>(Query.builder()</div><div class="line">    .table(<span class="string">"tweets"</span>)</div><div class="line">    .build())</div><div class="line">  <span class="selector-class">.prepare</span>()</div><div class="line">  <span class="selector-class">.asRxObservable</span>() <span class="comment">// Get Result as rx.Observable and subscribe to further updates of tables from Query!</span></div><div class="line">  <span class="selector-class">.observeOn</span>(mainThread()) <span class="comment">// All Rx operations work on Schedulers.io()</span></div><div class="line">  <span class="selector-class">.subscribe</span>(tweets -&gt; &#123; <span class="comment">// Please don't forget to unsubscribe</span></div><div class="line">      <span class="comment">// will be called with first result and then after each change of tables from Query</span></div><div class="line">      <span class="comment">// several changes in transaction -&gt; one notification</span></div><div class="line">      <span class="selector-tag">adapter</span><span class="selector-class">.setData</span>(tweets);</div><div class="line">    &#125;</div><div class="line">  );</div><div class="line"><span class="comment">// don't forget to manage Subscription and unsubscribe in lifecycle methods to prevent memory leaks</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>我们拿到数据库(storIOSQLite)读取(get)存有Tweet的列表(listOfObjects(Tweet.class))通过查询(Query)数据库表”tweets”.我们需要得到Observable(asRxObservable())然后在主线程订阅(observeOn(mainThread())),最后将数据给adapter.并且后面每次tweets表发生变化都会触发这次刷新(除非取消订阅,当然为了不引发内存泄露,我们需要在合理的时候取消订阅).</p>
+</blockquote>
+<h4 id="下面我们再来看StorIOSQLite做了什么"><a href="#下面我们再来看StorIOSQLite做了什么" class="headerlink" title="下面我们再来看StorIOSQLite做了什么?"></a>下面我们再来看<code>StorIOSQLite</code>做了什么?</h4><ol>
+<li>首先通过<code>Query</code>来获取需要查询的表,我们这里是<code>tweets</code></li>
+<li>通过内部的<code>RxChangesBus</code>订阅变化(<code>Changes</code>),并通过<code>filter</code>操作符过滤出存在<code>tweets</code>表的变化</li>
+<li>查询一次<code>Query</code>并通过<code>startWith</code>操作符插入查询结果(会通过listOfObjects进行实体转换)</li>
+</ol>
+<p>注意:一定要及时取消订阅,以免引起内存泄露</p>
+<h4 id="多张表的监听"><a href="#多张表的监听" class="headerlink" title="多张表的监听"></a>多张表的监听</h4><p>比如有这样的业务需求,我需要查询多张表以完成这次查询,但是一条SQL语句又不能实现.</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">fetchDatasThenRefreshUI();<span class="comment">//读取数据并刷新UI,这里会读取table1和table2</span></div><div class="line">mStorIOSQLite</div><div class="line">    .observeChangesInTables(<span class="keyword">Sets</span>.newHashSet(<span class="string">"table1"</span>,<span class="string">"table2"</span>))</div><div class="line">    .subscribe(changes <span class="comment">-&gt; &#123;</span></div><div class="line">         fetchDatasThenRefreshUI(); <span class="comment">//如果有变化再次读取数据库</span></div><div class="line">    &#125;);</div></pre></td></tr></table></figure>
+<blockquote>
+<p>上面的写法是不是很繁琐,我们重构一下…</p>
+</blockquote>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mStorIOSQLite</div><div class="line">    .observeChangesInTables(Sets.<span class="keyword">new</span><span class="type">HashSet</span>(<span class="string">"table1"</span>,<span class="string">"table2"</span>))</div><div class="line">    .startWith(Changes.<span class="keyword">new</span><span class="type">Instance</span>(<span class="string">""</span>))</div><div class="line">    .compose(<span class="built_in">this</span>.&lt;Changes&gt;bindUntilEvent(FragmentEvent.DESTROY)) <span class="comment">//使用RxLifecycle自动取消订阅</span></div><div class="line">    .subscribe(changes -&gt; &#123;</div><div class="line">         fetchDatasThenRefreshUI(); <span class="comment">//读取数据并刷新UI,这里会读取table1和table2</span></div><div class="line">    &#125;);</div></pre></td></tr></table></figure>
+<h4 id="主动通知变化"><a href="#主动通知变化" class="headerlink" title="主动通知变化"></a>主动通知变化</h4><p><code>StorIOSQLite</code>默认的通知变化是只要对一张表有数据操作时(CURD)均会发生通知,如果我们有个业务需求是需要给一个表里面插入1000条数据,插入成功后再刷新界面。<br>这个时候我们就需要<code>LowLevel</code></p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">List&lt;<span class="keyword">String</span>&gt; strings = ...; <span class="comment">//存放了操作两个数据库表的sql语句</span></div><div class="line"><span class="keyword">try</span> &#123;    </div><div class="line">    mStorIOSQLite.lowLevel().beginTransaction(); <span class="comment">//事务</span></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">String</span> sql : <span class="type">strings</span>) &#123; </div><div class="line">        mStorIOSQLite.lowLevel()</div><div class="line">            .executeSQL(RawQuery.builder().query(sql).build()); </div><div class="line">    &#125;</div><div class="line">    mStorIOSQLite.lowLevel()</div><div class="line">        .setTransactionSuccessful();</div><div class="line">    <span class="comment">//通知table1和table2发生了变化(触发再次读取事件)</span></div><div class="line">    mStorIOSQLite.lowLevel()</div><div class="line">        .notifyAboutChanges(Changes.<span class="keyword">new</span><span class="type">Instance</span>(Sets.<span class="keyword">new</span><span class="type">HashSet</span>(<span class="string">"table1"</span>,<span class="string">"table2"</span>))); </div><div class="line">    &#125; finally &#123;</div><div class="line">        mStorIOSQLite.lowLevel().endTransaction();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      DannyHe
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://dannyhe.wang/2017/03/31/think-about-storio/" title="介绍下StorIOSQLite到RxJava">http://dannyhe.wang/2017/03/31/think-about-storio/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by/2.5/cn/" rel="external nofollow" target="_blank">CC BY 2.5 CN</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/RxJava/" rel="tag"># RxJava</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/13/login-with-curl/" rel="next" title="2017开篇:curl使用备忘">
+                <i class="fa fa-chevron-left"></i> 2017开篇:curl使用备忘
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460"
+               alt="DannyHe" />
+          <p class="site-author-name" itemprop="name">DannyHe</p>
+           
+              <p class="site-description motion-element" itemprop="description">思绪来得快去得也快,偶尔在这里停留</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+              <div class="site-state-item site-state-categories">
+                  <a href="#">
+                    <span class="site-state-item-count">42.6k</span>
+                    <span class="site-state-item-name">网站码字</span>
+                  </a>
+              </div>
+            
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dannyjiajia" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友邻
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://jucongyuan.github.io" title="Jucongyuan" target="_blank">Jucongyuan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lj20082.github.io" title="Leo" target="_blank">Leo</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#storio"><span class="nav-number">1.</span> <span class="nav-text">storio</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#storio是通过预先代码生成进行实体类的赋值"><span class="nav-number">1.1.</span> <span class="nav-text">storio是通过预先代码生成进行实体类的赋值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Entity-VS-Cursor"><span class="nav-number">1.2.</span> <span class="nav-text">Entity VS Cursor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RxJava-VS-executeAsBlocking"><span class="nav-number">1.3.</span> <span class="nav-text">RxJava VS executeAsBlocking</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#理解"><span class="nav-number">1.3.1.</span> <span class="nav-text">理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#下面我们再来看StorIOSQLite做了什么"><span class="nav-number">1.3.2.</span> <span class="nav-text">下面我们再来看StorIOSQLite做了什么?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多张表的监听"><span class="nav-number">1.3.3.</span> <span class="nav-text">多张表的监听</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主动通知变化"><span class="nav-number">1.3.4.</span> <span class="nav-text">主动通知变化</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-github-alt"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DannyHe</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 88566, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 88566, xid: "2017/03/31/think-about-storio/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/88566/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>

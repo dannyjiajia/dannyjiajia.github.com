@@ -1,0 +1,886 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Android Studio,Gradle,Ant,Antenna," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本来打算写一篇关于Android的gradle插件的使用详解之类的文章,结果在知乎看到了一篇不错的。我在这里总结下吧。
+http://ghui.me/post/2015/03/create-several-variants
+开始
+合并的思想
+新的构建系统最主要的想法就是合并,将各自Productflavor定义的不同项目配置(applicationId,versionCode,signingCon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对Android的Gradle插件的理解">
+<meta property="og:url" content="http://dannyhe.wang/2016/03/28/think-about-android-gradle/index.html">
+<meta property="og:site_name" content="Notes">
+<meta property="og:description" content="本来打算写一篇关于Android的gradle插件的使用详解之类的文章,结果在知乎看到了一篇不错的。我在这里总结下吧。
+http://ghui.me/post/2015/03/create-several-variants
+开始
+合并的思想
+新的构建系统最主要的想法就是合并,将各自Productflavor定义的不同项目配置(applicationId,versionCode,signingCon">
+<meta property="og:updated_time" content="2017-03-31T05:11:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="对Android的Gradle插件的理解">
+<meta name="twitter:description" content="本来打算写一篇关于Android的gradle插件的使用详解之类的文章,结果在知乎看到了一篇不错的。我在这里总结下吧。
+http://ghui.me/post/2015/03/create-several-variants
+开始
+合并的思想
+新的构建系统最主要的想法就是合并,将各自Productflavor定义的不同项目配置(applicationId,versionCode,signingCon">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":true,"scrollpercent":true},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'I3ACRENDCJ',
+      apiKey: '686fd4a531304857781c8d66ff5b94d4',
+      indexName: 'notes',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://dannyhe.wang/2016/03/28/think-about-android-gradle/"/>
+
+
+
+
+
+  <title> 对Android的Gradle插件的理解 | Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">A place to record ideas</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://dannyhe.wang/2016/03/28/think-about-android-gradle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DannyHe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                对Android的Gradle插件的理解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-28T19:26:48+00:00">
+                2016-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/03/28/think-about-android-gradle/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2016/03/28/think-about-android-gradle/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本来打算写一篇关于Android的gradle插件的使用详解之类的文章,结果在知乎看到了一篇不错的。我在这里总结下吧。</p>
+<p><a href="http://ghui.me/post/2015/03/create-several-variants" target="_blank" rel="external">http://ghui.me/post/2015/03/create-several-variants</a></p>
+<h3 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h3><ol>
+<li><p>合并的思想</p>
+<p>新的构建系统最主要的想法就是合并,将各自<code>Productflavor</code>定义的不同项目配置(applicationId,versionCode,signingConfig,sourceSets…)以及资源(java代码,AndroidManifest.xml,res,jni…)和公用的<code>defaultConfig</code>定义的配置、<code>sourceSets.main</code>定义的资源进行合并</p>
+</li>
+<li><p>applicationId和AndroidManifest.xml中的package</p>
+<p>applicationId用来在Android设备和Google Play来区分apk,也就是以前的package.而现在AndroidManifest.xml中的package仅用来生成R.java</p>
+</li>
+<li><p>各自的Productflavor可以显式的设置sourceSets</p>
+<p> 不要误以为每个Productflavor对应的java代码目录和资源目录是定死的,可以通过sourceSets.flavor来自定义,如果没有显式定义才是如上文中所说的路径.如:</p>
+ <figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">sourceSets<span class="selector-class">.flavor</span> &#123;</div><div class="line">       java<span class="selector-class">.srcDir</span> <span class="string">"src-flavor"</span></div><div class="line">       res<span class="selector-class">.srcDir</span> <span class="string">"res-flavor"</span></div><div class="line">       jniLibs<span class="selector-class">.srcDir</span> <span class="string">"libs-flavor"</span></div><div class="line">       manifest<span class="selector-class">.srcFile</span> <span class="string">"AndroidManifestflavor.xml"</span></div><div class="line">       assets<span class="selector-class">.srcDir</span> <span class="string">"assets-flavor"</span></div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>各自的Productflavor下不要定义和<code>main</code>中同名的java类</p>
+</li>
+<li><p>packagingOptions的不足</p>
+<p> packagingOptions虽然可以取消掉一些so文件的引用,但是暂时还不能做到对不同的<code>Productflavor</code>进行设置,可以通过第三方插件<a href="https://github.com/Jween/android-soexcluder" target="_blank" rel="external">https://github.com/Jween/android-soexcluder</a></p>
+</li>
+</ol>
+<h3 id="自己的方案"><a href="#自己的方案" class="headerlink" title="自己的方案"></a>自己的方案</h3><p>  我采用的是同一份java代码,同一个静态库,不同的资源目录,不同的<code>AndroidManifest.xml</code>文件.java代码通过<code>ant</code>插件的宏定义分别生成不同的java代码(只是在编译时).这样就达到了灵活打包的特点,根据不同的宏定义定制出不同的apk,代码始终维护一份<br><a id="more"></a></p>
+<h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><p>  使用ant的插件<a href="http://antenna.sourceforge.net/wtkpreprocess.php" target="_blank" rel="external">antenna</a>,下载后将jar包放在项目目录下的<code>tools</code>目录中,然后在<code>build.gradle</code>中配置</p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">def</span> FreeMarcos = <span class="string">"FREE_VERSION"</span></div><div class="line"><span class="keyword">ant</span>.properties[<span class="string">'wtk.home'</span>] = <span class="string">"tools"</span></div><div class="line"><span class="keyword">ant</span>.taskdef( name: <span class="string">"wtkpreprocess"</span>, classname: <span class="string">"de.pleumann.antenna.WtkPreprocess"</span>, <span class="keyword">classpath</span>:<span class="string">"../tools/antenna-bin-1.0.2.jar"</span>)</div><div class="line"><span class="keyword">task</span> PreprocessFree &#123;</div><div class="line">  inputs.dir <span class="string">"src"</span></div><div class="line">  outputs.dir <span class="string">"src"</span></div><div class="line">  <span class="keyword">doLast</span> &#123;</div><div class="line">      <span class="keyword">ant</span>.wtkpreprocess(</div><div class="line">          srcdir: <span class="string">"src"</span>,</div><div class="line">          destdir: <span class="string">"src"</span>, </div><div class="line">          verbose:<span class="keyword">true</span>,</div><div class="line">          printsymbols:<span class="keyword">true</span>,</div><div class="line">          debuglevel:<span class="string">"debug"</span>,</div><div class="line">          encoding:<span class="string">"UTF-8"</span>,</div><div class="line">          symbols:FreeMarcos</div><div class="line">      )</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>  也可以用ant的方式来配置,可以看<a href="http://dannyhe.wang/2016/01/31/use-ant-in-gradle">这篇文章</a></p>
+<h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><p>  比如在java代码里这样使用:</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">buy</span><span class="params">()</span></span>&#123;</div><div class="line"><span class="comment">//#ifdef FREE_VERSION</span></div><div class="line">        pay(<span class="number">0</span>);</div><div class="line"><span class="comment">//#else </span></div><div class="line">        pay(<span class="number">100.0</span>);</div><div class="line"><span class="comment">//#endif</span></div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>  执行gradle task:<code>gradle PreprocessFree</code>,然后重新打开上面的代码文件,就能看见源码的变化了:)</p>
+<h4 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h4><p>  将上面的<code>PreprocessFree</code>任务加到对应的<code>Productflavor</code>编译中,这样在我们每次执行<code>assemble</code>任务的时候,便会自动执行代码的生成任务。</p>
+<p>  比如我定义的flavor为<code>free</code></p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">android<span class="selector-class">.applicationVariants</span><span class="selector-class">.all</span> &#123; variant -&gt;</div><div class="line">  variant<span class="selector-class">.productFlavors</span><span class="selector-class">.each</span> &#123; flavor -&gt;</div><div class="line">      <span class="keyword">if</span> (flavor<span class="selector-class">.name</span><span class="selector-class">.equals</span>(<span class="string">'free'</span>)) &#123;</div><div class="line">          variant<span class="selector-class">.javaCompile</span><span class="selector-class">.dependsOn</span>(PreprocessFree)</div><div class="line">      &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>  我们可以定义多个<code>flavor</code>和多个Preprocess任务,不同的<code>flavor</code>使用不同的java源码,这就实现了多个版本的需求，而且也不需要将源码分目录放了。<br>  happy coding :)</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      DannyHe
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://dannyhe.wang/2016/03/28/think-about-android-gradle/" title="对Android的Gradle插件的理解">http://dannyhe.wang/2016/03/28/think-about-android-gradle/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by/2.5/cn/" rel="external nofollow" target="_blank">CC BY 2.5 CN</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Android-Studio/" rel="tag"># Android Studio</a>
+          
+            <a href="/tags/Gradle/" rel="tag"># Gradle</a>
+          
+            <a href="/tags/Ant/" rel="tag"># Ant</a>
+          
+            <a href="/tags/Antenna/" rel="tag"># Antenna</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/12/github-link-with-next/" rel="next" title="谈谈next主题如何添加"Fork me on Github"">
+                <i class="fa fa-chevron-left"></i> 谈谈next主题如何添加"Fork me on Github"
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/13/about-rsync/" rel="prev" title="rsync在Windows上同步本地文件夹的权限问题">
+                rsync在Windows上同步本地文件夹的权限问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/2572540?v=3&s=460"
+               alt="DannyHe" />
+          <p class="site-author-name" itemprop="name">DannyHe</p>
+           
+              <p class="site-description motion-element" itemprop="description">思绪来得快去得也快,偶尔在这里停留</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+              <div class="site-state-item site-state-categories">
+                  <a href="#">
+                    <span class="site-state-item-count">42.6k</span>
+                    <span class="site-state-item-name">网站码字</span>
+                  </a>
+              </div>
+            
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dannyjiajia" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友邻
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://jucongyuan.github.io" title="Jucongyuan" target="_blank">Jucongyuan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lj20082.github.io" title="Leo" target="_blank">Leo</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#开始"><span class="nav-number">1.</span> <span class="nav-text">开始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自己的方案"><span class="nav-number">2.</span> <span class="nav-text">自己的方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#配置"><span class="nav-number">2.1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用"><span class="nav-number">2.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#最后"><span class="nav-number">2.3.</span> <span class="nav-text">最后</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-github-alt"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DannyHe</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 88566, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 88566, xid: "2016/03/28/think-about-android-gradle/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/88566/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>
